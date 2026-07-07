@@ -118,6 +118,122 @@ h1 {
   .mode-card { padding: 24px 16px; }
 }
 
+/* Hama mode */
+.flip-card {
+  perspective: 1200px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.flipped { transform: rotateY(180deg); }
+
+.flip-card-front,
+.flip-card-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: #1a1a2e;
+  border: 1px solid #2a2a3e;
+  border-radius: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.flip-card-back {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  transform: rotateY(180deg);
+}
+
+.word-front {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.tap-hint {
+  font-size: 0.8rem;
+  color: #444;
+}
+
+.word-back-eng {
+  font-size: 1.1rem;
+  color: #6c63ff;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.word-back-meaning {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.hama-eval {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.btn-hama-known {
+  flex: 1;
+  background: rgba(76,175,80,0.15);
+  border: 2px solid #4caf50;
+  color: #4caf50;
+  padding: 16px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  font-family: inherit;
+}
+
+.btn-hama-known:hover { background: rgba(76,175,80,0.28); transform: translateY(-2px); }
+
+.btn-hama-unknown {
+  flex: 1;
+  background: rgba(244,67,54,0.15);
+  border: 2px solid #f44336;
+  color: #f44336;
+  padding: 16px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  font-family: inherit;
+}
+
+.btn-hama-unknown:hover { background: rgba(244,67,54,0.28); transform: translateY(-2px); }
+
+.hama-round-badge {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.hama-remaining {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #e91e63;
+}
+
 /* Typing mode */
 .typing-area {
   display: flex;
@@ -520,7 +636,16 @@ h1 {
           <span class="to">직접 입력</span>
         </div>
         <div class="mode-title">직접 입력 모드</div>
-        <div class="mode-desc">영단어를 보고 한글 뜻을 직접 써보세요<br>정답 확인 후 스스로 O / X 채점</div>
+        <div class="mode-desc">영단어를 보고 한글 뜻을 직접 써보세요<br>자동 채점 후 다음 문제로 진행</div>
+      </div>
+      <div class="mode-card" onclick="startHama()" style="flex-basis:100%; flex-grow:0; border-color:#6c63ff44;">
+        <div class="mode-arrow">
+          <span class="from" style="color:#e91e63;">학습</span>
+          <span class="arrow">&rarr;</span>
+          <span class="to" style="color:#6c63ff;">반복</span>
+        </div>
+        <div class="mode-title">해마 학습법</div>
+        <div class="mode-desc">카드를 보고 뜻을 떠올린 뒤 확인 → 알았다 / 몰랐다<br>모른 단어만 반복해서 모두 외울 때까지!</div>
       </div>
     </div>
   </div>
@@ -554,6 +679,44 @@ h1 {
         <div class="correct-text" id="correct-text"></div>
       </div>
     </div>
+  </div>
+
+  <!-- Hama -->
+  <div id="hama-screen" style="display:none;">
+    <div class="quiz-top-bar">
+      <button class="btn-home" onclick="goHome()">&#8592; 모드 선택</button>
+      <span class="quiz-mode-label">해마 학습법</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="hama-progress-fill"></div></div>
+    <div class="quiz-info">
+      <span id="hama-counter">1 / 30</span>
+      <span>
+        <span class="correct" id="hama-known-count">✓ 0</span>
+        &nbsp;&nbsp;
+        <span class="wrong" id="hama-unknown-count">✗ 0</span>
+      </span>
+    </div>
+
+    <div class="flip-card" id="flip-card" onclick="flipCard()">
+      <div class="flip-card-inner" id="flip-card-inner">
+        <div class="flip-card-front">
+          <div class="word-front" id="hama-word"></div>
+          <div class="tap-hint">탭하여 뜻 확인 ▾</div>
+        </div>
+        <div class="flip-card-back">
+          <div class="word-back-eng" id="hama-word-back"></div>
+          <div class="word-back-meaning" id="hama-meaning"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hama-eval" id="hama-eval" style="display:none;">
+      <button class="btn-hama-unknown" onclick="hamaEval(false)">✗ &nbsp;몰랐다</button>
+      <button class="btn-hama-known" onclick="hamaEval(true)">✓ &nbsp;알았다</button>
+    </div>
+
+    <div class="hama-round-badge" id="hama-round-badge"></div>
+    <div class="hama-remaining" id="hama-remaining"></div>
   </div>
 
   <!-- Result -->
@@ -1424,10 +1587,130 @@ function submitTyping() {
   }, 1500);
 }
 
+// ── Hama mode ──────────────────────────────────────────
+let hamaPool = [];       // words still unknown this round
+let hamaQueue = [];      // current round order
+let hamaIndex = 0;
+let hamaKnown = 0;
+let hamaUnknown = 0;
+let hamaRound = 1;
+let hamaTotal = 0;
+let hamaFlipped = false;
+
+function startHama() {
+  hamaPool = shuffle(WORDS).slice(0, 30);
+  hamaTotal = hamaPool.length;
+  hamaKnown = 0;
+  hamaUnknown = 0;
+  hamaRound = 1;
+  hamaQueue = shuffle([...hamaPool]);
+  hamaIndex = 0;
+  hamaFlipped = false;
+
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('hama-screen').style.display = 'block';
+
+  showHamaCard();
+}
+
+function showHamaCard() {
+  hamaFlipped = false;
+  const inner = document.getElementById('flip-card-inner');
+  inner.classList.remove('flipped');
+  document.getElementById('hama-eval').style.display = 'none';
+
+  const current = hamaQueue[hamaIndex];
+  document.getElementById('hama-word').textContent = current.word;
+  document.getElementById('hama-word-back').textContent = current.word;
+  document.getElementById('hama-meaning').textContent = current.meaning;
+
+  const remaining = hamaQueue.length;
+  const done = hamaTotal - hamaPool.length + (hamaTotal - remaining) % hamaTotal;
+  document.getElementById('hama-counter').textContent = `${hamaIndex + 1} / ${remaining}`;
+  document.getElementById('hama-known-count').textContent = `✓ ${hamaKnown}`;
+  document.getElementById('hama-unknown-count').textContent = `✗ ${hamaUnknown}`;
+  document.getElementById('hama-progress-fill').style.width =
+    `${(hamaKnown / hamaTotal) * 100}%`;
+  document.getElementById('hama-round-badge').textContent = `${hamaRound}라운드`;
+  document.getElementById('hama-remaining').textContent =
+    hamaPool.length < hamaTotal
+      ? `남은 암기 단어: ${hamaPool.length}개`
+      : `전체 ${hamaTotal}개 학습 중`;
+}
+
+function flipCard() {
+  if (hamaFlipped) return;
+  hamaFlipped = true;
+  document.getElementById('flip-card-inner').classList.add('flipped');
+  setTimeout(() => {
+    document.getElementById('hama-eval').style.display = 'flex';
+  }, 300);
+}
+
+function hamaEval(known) {
+  const current = hamaQueue[hamaIndex];
+
+  if (known) {
+    hamaKnown++;
+    // Remove from pool (no longer needs repeat)
+    hamaPool = hamaPool.filter(w => w.word !== current.word);
+  } else {
+    hamaUnknown++;
+  }
+
+  document.getElementById('hama-known-count').textContent = `✓ ${hamaKnown}`;
+  document.getElementById('hama-unknown-count').textContent = `✗ ${hamaUnknown}`;
+
+  hamaIndex++;
+
+  if (hamaIndex < hamaQueue.length) {
+    showHamaCard();
+  } else {
+    // Round complete
+    if (hamaPool.length === 0) {
+      // All known → show result
+      showHamaResult();
+    } else {
+      // Start new round with remaining unknowns
+      hamaRound++;
+      hamaUnknown = 0;
+      hamaQueue = shuffle([...hamaPool]);
+      hamaIndex = 0;
+      showHamaCard();
+    }
+  }
+}
+
+function showHamaResult() {
+  document.getElementById('hama-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+
+  const scoreCircle = document.getElementById('score-circle');
+  scoreCircle.className = 'score-circle perfect';
+  document.getElementById('score-text').textContent = hamaTotal;
+  document.getElementById('final-correct').textContent = `${hamaRound}라운드 만에 완료`;
+  document.getElementById('final-wrong').textContent = `전체 ${hamaTotal}개 암기 완료`;
+  document.getElementById('wrong-section').style.display = 'none';
+  document.getElementById('btn-retry-wrong').style.display = 'none';
+
+  // Override retry button to restart hama
+  const retryBtn = document.querySelector('.btn-retry');
+  retryBtn.onclick = startHama;
+  retryBtn.textContent = '다시 학습하기';
+}
+
 function goHome() {
   document.getElementById('quiz-screen').style.display = 'none';
   document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('hama-screen').style.display = 'none';
   document.getElementById('start-screen').style.display = 'block';
+
+  // Restore retry button default
+  const retryBtn = document.querySelector('.btn-retry');
+  retryBtn.onclick = () => startQuiz(null, quizMode);
+  retryBtn.textContent = '같은 모드 다시';
 }
 
 document.addEventListener('keydown', (e) => {
