@@ -1048,7 +1048,7 @@ document.addEventListener('keydown', e => {
 let bulkWords = [];
 
 function startBulk(wordPool) {
-  bulkWords = shuffle(wordPool || WORDS).slice(0, Math.min(30, (wordPool || WORDS).length));
+  bulkWords = shuffle(wordPool || WORDS);
   hideAll();
   document.getElementById('bulk-screen').style.display = 'block';
   document.getElementById('bulk-summary').style.display = 'none';
