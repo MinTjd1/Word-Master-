@@ -392,12 +392,98 @@ h1 {
 /* ── Quiz Screen ── */
 #quiz-screen { display: none; }
 
+/* ── Bulk Typing mode ── */
+#bulk-screen { display: none; }
+
+.bulk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.bulk-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #1a1a2e;
+  border: 1px solid #2a2a3e;
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: border-color 0.2s;
+}
+
+.bulk-row.row-correct { border-color: #4caf50; background: rgba(76,175,80,0.07); }
+.bulk-row.row-wrong   { border-color: #f44336; background: rgba(244,67,54,0.07); }
+
+.bulk-num {
+  width: 28px; height: 28px; line-height: 28px;
+  text-align: center; border-radius: 50%;
+  background: #2a2a3e; font-size: 0.8rem; font-weight: 600;
+  flex-shrink: 0; color: #888;
+}
+.row-correct .bulk-num { background: #4caf50; color: #fff; }
+.row-wrong   .bulk-num { background: #f44336; color: #fff; }
+
+.bulk-word {
+  font-size: 1.05rem; font-weight: 700; color: #fff;
+  min-width: 120px; flex-shrink: 0;
+}
+
+.bulk-input {
+  flex: 1;
+  background: #0f0f1a;
+  border: 1px solid #2a2a3e;
+  color: #e0e0e0;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.bulk-input:focus { border-color: #6c63ff; }
+.bulk-input:disabled { color: #888; }
+.bulk-input.inp-correct { border-color: #4caf50; color: #4caf50; background: rgba(76,175,80,0.08); }
+.bulk-input.inp-wrong   { border-color: #f44336; color: #f44336; background: rgba(244,67,54,0.08); }
+
+.bulk-answer {
+  font-size: 0.85rem; color: #4caf50; min-width: 80px;
+  text-align: right; display: none;
+}
+.row-wrong .bulk-answer { display: block; }
+
+.btn-grade {
+  width: 100%;
+  background: linear-gradient(135deg, #6c63ff, #e91e63);
+  border: none; color: white; padding: 16px;
+  font-size: 1.1rem; font-weight: 700; border-radius: 12px;
+  cursor: pointer; transition: opacity 0.2s; font-family: inherit;
+  margin-bottom: 12px;
+}
+.btn-grade:hover { opacity: 0.9; }
+.btn-grade:disabled { opacity: 0.4; cursor: default; }
+
+.bulk-summary {
+  display: none;
+  text-align: center;
+  background: #1a1a2e;
+  border: 1px solid #2a2a3e;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  font-size: 1.05rem;
+}
+.bulk-summary .bs-correct { color: #4caf50; font-weight: 700; font-size: 1.2rem; }
+.bulk-summary .bs-wrong   { color: #f44336; font-weight: 700; font-size: 1.2rem; }
+
 @media (max-width: 480px) {
   .mode-card { min-width: 100%; }
   .word-card .english { font-size: 1.7rem; }
   .option-btn { font-size: 0.95rem; padding: 14px 16px; }
   h1 { font-size: 1.6rem; }
   .sent-card { font-size: 1rem; padding: 24px 16px; }
+  .bulk-word { min-width: 90px; font-size: 0.95rem; }
 }
 </style>
 </head>
@@ -428,6 +514,11 @@ h1 {
         <div class="mode-arrow"><span class="from">예문</span><span class="arrow">→</span><span class="to">빈칸</span></div>
         <div class="mode-title">예문 빈칸 채우기</div>
         <div class="mode-desc">예문의 빈칸에 알맞은<br>영단어를 4개 중 고르세요</div>
+      </div>
+      <div class="mode-card full-width" onclick="startBulk()" style="border-color:#e91e6344;">
+        <div class="mode-arrow"><span class="from" style="color:#6c63ff;">30단어</span><span class="arrow">→</span><span class="to" style="color:#e91e63;">한꺼번에 입력</span></div>
+        <div class="mode-title">한꺼번에 쓰기</div>
+        <div class="mode-desc">30개 영단어가 한 번에 표시 → 한글 뜻을 모두 채운 뒤 한 번에 채점!</div>
       </div>
       <div class="mode-card full-width" onclick="startHama()" style="border-color:#6c63ff44;">
         <div class="mode-arrow"><span class="from" style="color:#e91e63;">학습</span><span class="arrow">→</span><span class="to" style="color:#6c63ff;">반복</span></div>
@@ -484,6 +575,24 @@ h1 {
     <div class="sent-card" id="sent-text"></div>
     <div class="options" id="sent-options"></div>
     <div class="sent-feedback" id="sent-feedback"></div>
+  </div>
+
+  <!-- ── Bulk Typing ── -->
+  <div id="bulk-screen">
+    <div class="quiz-top-bar">
+      <button class="btn-home" onclick="goHome()">← 모드 선택</button>
+      <span class="quiz-mode-label">한꺼번에 쓰기</span>
+    </div>
+    <div class="bulk-summary" id="bulk-summary">
+      <div><span class="bs-correct" id="bulk-correct-count"></span> &nbsp;/&nbsp; <span style="color:#888;" id="bulk-total-count"></span></div>
+      <div style="margin-top:6px; color:#888; font-size:0.9rem;" id="bulk-summary-msg"></div>
+    </div>
+    <div class="bulk-list" id="bulk-list"></div>
+    <button class="btn-grade" id="btn-grade" onclick="gradeBulk()">채점하기</button>
+    <div class="btn-row" id="bulk-btn-row" style="display:none;">
+      <button class="btn-retry" onclick="startBulk()">다시 하기</button>
+      <button class="btn-home-result" onclick="goHome()">모드 선택으로</button>
+    </div>
   </div>
 
   <!-- ── Hama ── -->
@@ -696,7 +805,7 @@ function shuffle(arr) {
 }
 
 function hideAll() {
-  ['start-screen','quiz-screen','sentence-screen','hama-screen','result-screen']
+  ['start-screen','quiz-screen','sentence-screen','bulk-screen','hama-screen','result-screen']
     .forEach(id => document.getElementById(id).style.display = 'none');
 }
 
@@ -921,6 +1030,86 @@ document.addEventListener('keydown', e => {
   const n = parseInt(e.key);
   if (n >= 1 && n <= 4) { const btns = document.querySelectorAll('#sent-options .option-btn'); if (btns[n-1]) btns[n-1].click(); }
 });
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('bulk-screen').style.display === 'none') return;
+  if (e.key !== 'Enter') return;
+  const focused = document.activeElement;
+  if (!focused || !focused.classList.contains('bulk-input')) return;
+  const idx = parseInt(focused.dataset.idx);
+  const next = document.getElementById(`bulk-inp-${idx + 1}`);
+  if (next) { e.preventDefault(); next.focus(); }
+  else { e.preventDefault(); gradeBulk(); }
+});
+
+// ─────────────────────────────────────────────
+//  BULK TYPING MODE
+// ─────────────────────────────────────────────
+let bulkWords = [];
+
+function startBulk(wordPool) {
+  bulkWords = shuffle(wordPool || WORDS).slice(0, Math.min(30, (wordPool || WORDS).length));
+  hideAll();
+  document.getElementById('bulk-screen').style.display = 'block';
+  document.getElementById('bulk-summary').style.display = 'none';
+  document.getElementById('btn-grade').style.display = 'block';
+  document.getElementById('btn-grade').disabled = false;
+  document.getElementById('bulk-btn-row').style.display = 'none';
+
+  const list = document.getElementById('bulk-list');
+  list.innerHTML = '';
+  bulkWords.forEach((w, i) => {
+    const row = document.createElement('div');
+    row.className = 'bulk-row';
+    row.id = `bulk-row-${i}`;
+    row.innerHTML = `
+      <span class="bulk-num">${i + 1}</span>
+      <span class="bulk-word">${w.word}</span>
+      <input class="bulk-input" id="bulk-inp-${i}" type="text"
+        placeholder="한글 뜻" autocomplete="off" autocorrect="off" spellcheck="false"
+        data-idx="${i}">
+      <span class="bulk-answer" id="bulk-ans-${i}">${w.meaning}</span>
+    `;
+    list.appendChild(row);
+  });
+
+  document.getElementById('bulk-inp-0')?.focus();
+}
+
+function gradeBulk() {
+  let correct = 0;
+  bulkWords.forEach((w, i) => {
+    const inp = document.getElementById(`bulk-inp-${i}`);
+    const row = document.getElementById(`bulk-row-${i}`);
+    const val = inp.value.trim();
+    const ok  = checkTypingAnswer(val, w.meaning);
+    inp.disabled = true;
+    if (ok) {
+      correct++;
+      inp.classList.add('inp-correct');
+      row.classList.add('row-correct');
+    } else {
+      inp.classList.add('inp-wrong');
+      row.classList.add('row-wrong');
+    }
+  });
+
+  const total = bulkWords.length;
+  const wrong = total - correct;
+  const pct   = Math.round((correct / total) * 100);
+
+  const summary = document.getElementById('bulk-summary');
+  document.getElementById('bulk-correct-count').textContent = `정답 ${correct}개 (${pct}%)`;
+  document.getElementById('bulk-total-count').textContent   = `전체 ${total}개`;
+  document.getElementById('bulk-summary-msg').textContent   =
+    wrong === 0 ? '완벽합니다!' : `빨간색 단어를 다시 확인하세요 (오답 ${wrong}개)`;
+  summary.style.display = 'block';
+
+  document.getElementById('btn-grade').style.display = 'none';
+  document.getElementById('bulk-btn-row').style.display = 'flex';
+
+  summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 // ─────────────────────────────────────────────
 //  HAMA MODE
