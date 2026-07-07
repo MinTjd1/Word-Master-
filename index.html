@@ -155,65 +155,55 @@ h1 {
 
 .btn-submit:hover { opacity: 0.9; }
 
+.type-input.input-correct {
+  border-color: #4caf50;
+  background: rgba(76,175,80,0.1);
+  color: #4caf50;
+}
+
+.type-input.input-wrong {
+  border-color: #f44336;
+  background: rgba(244,67,54,0.1);
+  color: #f44336;
+}
+
 .answer-reveal {
   display: none;
-  background: #1a1a2e;
-  border: 1px solid #2a2a3e;
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px 20px;
   text-align: center;
 }
 
+.answer-reveal.reveal-correct {
+  background: rgba(76,175,80,0.1);
+  border: 1px solid #4caf50;
+}
+
+.answer-reveal.reveal-wrong {
+  background: rgba(244,67,54,0.08);
+  border: 1px solid #f44336;
+}
+
+.answer-reveal .verdict {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.reveal-correct .verdict { color: #4caf50; }
+.reveal-wrong .verdict { color: #f44336; }
+
 .answer-reveal .label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #888;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .answer-reveal .correct-text {
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 600;
   color: #4caf50;
-  margin-bottom: 16px;
 }
-
-.self-eval {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.btn-self-o {
-  flex: 1;
-  background: rgba(76,175,80,0.15);
-  border: 2px solid #4caf50;
-  color: #4caf50;
-  padding: 14px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.2s;
-  font-family: inherit;
-}
-
-.btn-self-o:hover { background: rgba(76,175,80,0.3); }
-
-.btn-self-x {
-  flex: 1;
-  background: rgba(244,67,54,0.15);
-  border: 2px solid #f44336;
-  color: #f44336;
-  padding: 14px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.2s;
-  font-family: inherit;
-}
-
-.btn-self-x:hover { background: rgba(244,67,54,0.3); }
 
 /* Quiz Screen */
 #quiz-screen { display: none; }
@@ -559,12 +549,9 @@ h1 {
       <input class="type-input" id="type-input" type="text" placeholder="한글 뜻을 입력하세요..." autocomplete="off" autocorrect="off" spellcheck="false">
       <button class="btn-submit" id="btn-submit" onclick="submitTyping()">확인</button>
       <div class="answer-reveal" id="answer-reveal">
+        <div class="verdict" id="verdict-text"></div>
         <div class="label">정답</div>
         <div class="correct-text" id="correct-text"></div>
-        <div class="self-eval">
-          <button class="btn-self-o" onclick="selfEval(true)">O &nbsp;맞음</button>
-          <button class="btn-self-x" onclick="selfEval(false)">X &nbsp;틀림</button>
-        </div>
       </div>
     </div>
   </div>
@@ -1379,35 +1366,62 @@ function showResult() {
   }
 }
 
+function normalizeKo(s) {
+  return s.replace(/[~（）()【】\[\]\s]/g, '').toLowerCase();
+}
+
+function checkTypingAnswer(userInput, correctMeaning) {
+  const userNorm = normalizeKo(userInput);
+  if (userNorm.length < 1) return false;
+  // Split correct meaning by comma or slash into segments
+  const parts = correctMeaning.split(/[,\/]/)
+    .map(p => normalizeKo(p))
+    .filter(p => p.length >= 1);
+  // Match if user input equals or contains any segment (min 2 chars)
+  return parts.some(part => {
+    if (part.length < 2) return false;
+    return userNorm === part || userNorm.includes(part) || part.includes(userNorm);
+  });
+}
+
 function submitTyping() {
   if (answered) return;
   answered = true;
 
   const current = quizWords[currentIndex];
   const typeInput = document.getElementById('type-input');
+  const userInput = typeInput.value.trim();
   typeInput.disabled = true;
   document.getElementById('btn-submit').disabled = true;
-  document.getElementById('correct-text').textContent = current.meaning;
-  document.getElementById('answer-reveal').style.display = 'block';
-}
 
-function selfEval(isCorrect) {
-  const current = quizWords[currentIndex];
+  const isCorrect = checkTypingAnswer(userInput, current.meaning);
+
+  typeInput.classList.add(isCorrect ? 'input-correct' : 'input-wrong');
+
+  const revealEl = document.getElementById('answer-reveal');
+  revealEl.className = 'answer-reveal ' + (isCorrect ? 'reveal-correct' : 'reveal-wrong');
+  revealEl.style.display = 'block';
+  document.getElementById('verdict-text').textContent = isCorrect ? '✓ 정답!' : '✗ 오답';
+  document.getElementById('correct-text').textContent = current.meaning;
+
   if (isCorrect) {
     correctCount++;
   } else {
     wrongCount++;
     wrongWords.push({ word: current.word, correctMeaning: current.meaning });
   }
+
   document.getElementById('score-correct').textContent = `✓ ${correctCount}`;
   document.getElementById('score-wrong').textContent = `✗ ${wrongCount}`;
 
-  currentIndex++;
-  if (currentIndex < quizWords.length) {
-    showQuestion();
-  } else {
-    showResult();
-  }
+  setTimeout(() => {
+    currentIndex++;
+    if (currentIndex < quizWords.length) {
+      showQuestion();
+    } else {
+      showResult();
+    }
+  }, 1500);
 }
 
 function goHome() {
