@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Word Master - 영단어 뜻 맞추기</title>
+<title>Word Master - Day별 영단어 암기</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -18,11 +18,7 @@ body {
   padding: 20px 0 40px;
 }
 
-.container {
-  width: 100%;
-  max-width: 640px;
-  padding: 20px;
-}
+.container { width: 100%; max-width: 700px; padding: 20px; }
 
 h1 {
   text-align: center;
@@ -33,505 +29,265 @@ h1 {
   -webkit-text-fill-color: transparent;
 }
 
-.subtitle {
-  text-align: center;
-  color: #888;
-  margin-bottom: 32px;
-  font-size: 0.95rem;
+.subtitle { text-align: center; color: #888; margin-bottom: 24px; font-size: 0.95rem; }
+
+h2.section-title { font-size: 1.05rem; color: #fff; margin: 28px 0 12px; display: flex; align-items: center; gap: 8px; }
+h2.section-title .badge { font-size: 0.75rem; color: #6c63ff; background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3); padding: 2px 8px; border-radius: 20px; }
+p.section-desc { font-size: 0.82rem; color: #777; margin-bottom: 12px; line-height: 1.5; }
+
+/* ── Day grid ── */
+.day-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.day-btn {
+  background: #1a1a2e; border: 2px solid #2a2a3e; color: #e0e0e0;
+  padding: 10px 4px; border-radius: 10px; cursor: pointer; font-size: 0.85rem;
+  font-family: inherit; transition: all 0.2s; text-align: center;
 }
+.day-btn:hover { border-color: #6c63ff; background: #22223a; }
+.day-btn .day-count { display: block; font-size: 0.68rem; color: #666; margin-top: 2px; }
 
-/* ── Landing ── */
-#start-screen { text-align: center; }
-
-.mode-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 8px;
+/* ── Pair grid ── */
+.pair-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; }
+.pair-btn {
+  background: #1a1a2e; border: 2px solid #2a2a3e; color: #e0e0e0;
+  padding: 10px 6px; border-radius: 10px; cursor: pointer; font-size: 0.82rem;
+  font-family: inherit; transition: all 0.2s; text-align: center;
 }
+.pair-btn:hover { border-color: #e91e63; background: #22223a; }
 
+.wrongnote-card {
+  background: #1a1a2e; border: 2px solid #f4433655; border-radius: 16px;
+  padding: 20px; cursor: pointer; transition: all 0.2s; text-align: center; margin-bottom: 8px;
+}
+.wrongnote-card:hover { border-color: #f44336; transform: translateY(-2px); }
+.wrongnote-card .wn-title { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.wrongnote-card .wn-count { font-size: 0.85rem; color: #f44336; }
+
+/* ── Day detail (mode picker) ── */
+#day-detail-screen, #pair-detail-screen { display: none; }
+.detail-header { text-align: center; margin-bottom: 20px; }
+.detail-header .dh-title { font-size: 1.4rem; font-weight: 700; color: #fff; }
+.detail-header .dh-sub { font-size: 0.85rem; color: #888; margin-top: 4px; }
+.mode-cards { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; }
 .mode-card {
-  flex: 1;
-  min-width: 44%;
-  background: #1a1a2e;
-  border: 2px solid #2a2a3e;
-  border-radius: 16px;
-  padding: 28px 16px;
-  cursor: pointer;
-  transition: all 0.25s;
-  text-align: center;
+  flex: 1; min-width: 44%; background: #1a1a2e; border: 2px solid #2a2a3e;
+  border-radius: 16px; padding: 26px 16px; cursor: pointer; transition: all 0.25s; text-align: center;
 }
-
-.mode-card:hover {
-  border-color: #6c63ff;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(108,99,255,0.3);
-}
-
-.mode-card .mode-arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-.mode-card .mode-arrow .from { color: #6c63ff; }
-.mode-card .mode-arrow .to   { color: #e91e63; }
-.mode-card .mode-arrow .arrow { color: #555; }
-
-.mode-card .mode-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 6px;
-}
-
-.mode-card .mode-desc {
-  font-size: 0.8rem;
-  color: #888;
-  line-height: 1.5;
-}
-
+.mode-card:hover { border-color: #6c63ff; transform: translateY(-4px); box-shadow: 0 8px 25px rgba(108,99,255,0.3); }
+.mode-card .mode-icon { font-size: 1.6rem; margin-bottom: 8px; }
+.mode-card .mode-title { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.mode-card .mode-desc { font-size: 0.8rem; color: #888; line-height: 1.5; }
 .mode-card.full-width { flex-basis: 100%; min-width: unset; }
 
-/* ── Shared quiz top bar ── */
-.quiz-top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
+/* ── Shared top bar ── */
+.quiz-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .btn-home {
-  background: transparent;
-  border: 1px solid #2a2a3e;
-  color: #888;
-  padding: 8px 14px;
-  font-size: 0.85rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
+  background: transparent; border: 1px solid #2a2a3e; color: #888; padding: 8px 14px;
+  font-size: 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.2s;
 }
 .btn-home:hover { border-color: #6c63ff; color: #6c63ff; }
-
 .quiz-mode-label { font-size: 0.85rem; color: #555; }
 
-.progress-bar {
-  background: #1a1a2e;
-  border-radius: 12px;
-  height: 8px;
-  margin-bottom: 16px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #6c63ff, #e91e63);
-  border-radius: 12px;
-  transition: width 0.4s ease;
-  width: 0%;
-}
+.progress-bar { background: #1a1a2e; border-radius: 12px; height: 8px; margin-bottom: 16px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #6c63ff, #e91e63); border-radius: 12px; transition: width 0.4s ease; width: 0%; }
 
-.quiz-info {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  font-size: 0.9rem;
-  color: #888;
-}
+.quiz-info { display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 0.9rem; color: #888; }
 .quiz-info .correct { color: #4caf50; }
-.quiz-info .wrong   { color: #f44336; }
+.quiz-info .wrong { color: #f44336; }
 
 /* ── Word card ── */
-.word-card {
-  background: #1a1a2e;
-  border-radius: 16px;
-  padding: 40px 24px;
-  text-align: center;
-  margin-bottom: 24px;
-  border: 1px solid #2a2a3e;
-}
-.word-card .english {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #fff;
-}
+.word-card { background: #1a1a2e; border-radius: 16px; padding: 40px 24px; text-align: center; margin-bottom: 24px; border: 1px solid #2a2a3e; }
+.word-card .english { font-size: 2.2rem; font-weight: 700; color: #fff; }
+.word-card .qtype-tag { display: inline-block; font-size: 0.7rem; color: #6c63ff; background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3); padding: 2px 10px; border-radius: 20px; margin-bottom: 14px; }
 
 /* ── Options ── */
-.options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.options { display: flex; flex-direction: column; gap: 12px; }
 .option-btn {
-  background: #1a1a2e;
-  border: 2px solid #2a2a3e;
-  color: #e0e0e0;
-  padding: 16px 20px;
-  font-size: 1.05rem;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
-  font-family: inherit;
+  background: #1a1a2e; border: 2px solid #2a2a3e; color: #e0e0e0; padding: 16px 20px;
+  font-size: 1.05rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: left; font-family: inherit;
 }
 .option-btn:hover:not(.disabled) { border-color: #6c63ff; background: #22223a; }
 .option-btn.correct-answer { border-color: #4caf50; background: rgba(76,175,80,0.15); color: #4caf50; }
-.option-btn.wrong-answer   { border-color: #f44336; background: rgba(244,67,54,0.15); color: #f44336; }
+.option-btn.wrong-answer { border-color: #f44336; background: rgba(244,67,54,0.15); color: #f44336; }
 .option-btn.disabled { cursor: default; }
 
 .option-number {
-  display: inline-block;
-  width: 28px; height: 28px; line-height: 28px;
-  text-align: center;
-  border-radius: 50%;
-  background: #2a2a3e;
-  margin-right: 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center;
+  border-radius: 50%; background: #2a2a3e; margin-right: 12px; font-size: 0.85rem; font-weight: 600;
 }
 .correct-answer .option-number { background: #4caf50; color: #fff; }
-.wrong-answer   .option-number { background: #f44336; color: #fff; }
+.wrong-answer .option-number { background: #f44336; color: #fff; }
 
-/* ── Typing mode ── */
-.typing-area {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+/* ── Typing ── */
+.typing-area { display: flex; flex-direction: column; gap: 12px; }
 .type-input {
-  background: #1a1a2e;
-  border: 2px solid #2a2a3e;
-  color: #fff;
-  padding: 16px 20px;
-  font-size: 1.1rem;
-  border-radius: 12px;
-  width: 100%;
-  outline: none;
-  transition: border-color 0.2s;
-  font-family: inherit;
+  background: #1a1a2e; border: 2px solid #2a2a3e; color: #fff; padding: 16px 20px;
+  font-size: 1.1rem; border-radius: 12px; width: 100%; outline: none; transition: border-color 0.2s; font-family: inherit;
 }
 .type-input:focus { border-color: #6c63ff; }
 .type-input::placeholder { color: #444; }
 .type-input.input-correct { border-color: #4caf50; background: rgba(76,175,80,0.1); color: #4caf50; }
-.type-input.input-wrong   { border-color: #f44336; background: rgba(244,67,54,0.1); color: #f44336; }
+.type-input.input-wrong { border-color: #f44336; background: rgba(244,67,54,0.1); color: #f44336; }
 
 .btn-submit {
-  background: linear-gradient(135deg, #6c63ff, #e91e63);
-  border: none;
-  color: white;
-  padding: 14px;
-  font-size: 1.05rem;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  font-family: inherit;
+  background: linear-gradient(135deg, #6c63ff, #e91e63); border: none; color: white; padding: 14px;
+  font-size: 1.05rem; border-radius: 12px; cursor: pointer; transition: opacity 0.2s; font-family: inherit;
 }
 .btn-submit:hover { opacity: 0.9; }
 
-.answer-reveal {
-  display: none;
-  border-radius: 12px;
-  padding: 16px 20px;
-  text-align: center;
-}
-.answer-reveal.reveal-correct { background: rgba(76,175,80,0.1);  border: 1px solid #4caf50; }
-.answer-reveal.reveal-wrong   { background: rgba(244,67,54,0.08); border: 1px solid #f44336; }
+.answer-reveal { display: none; border-radius: 12px; padding: 16px 20px; text-align: center; }
+.answer-reveal.reveal-correct { background: rgba(76,175,80,0.1); border: 1px solid #4caf50; }
+.answer-reveal.reveal-wrong { background: rgba(244,67,54,0.08); border: 1px solid #f44336; }
 .answer-reveal .verdict { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
 .reveal-correct .verdict { color: #4caf50; }
-.reveal-wrong   .verdict { color: #f44336; }
+.reveal-wrong .verdict { color: #f44336; }
 .answer-reveal .label { font-size: 0.8rem; color: #888; margin-bottom: 4px; }
 .answer-reveal .correct-text { font-size: 1.15rem; font-weight: 600; color: #4caf50; }
 
-/* ── Sentence mode ── */
-#sentence-screen { display: none; }
-
-.sent-card {
-  background: #1a1a2e;
-  border: 1px solid #2a2a3e;
-  border-radius: 16px;
-  padding: 32px 24px;
-  text-align: center;
-  margin-bottom: 24px;
-  font-size: 1.1rem;
-  line-height: 1.9;
-  color: #d0d0d0;
-}
-.sent-blank {
-  color: #6c63ff;
-  font-weight: 700;
-  font-size: 1.3rem;
-  letter-spacing: 2px;
-  border-bottom: 2px solid #6c63ff;
-  padding: 0 4px;
-}
-.sent-feedback {
-  display: none;
-  border-radius: 10px;
-  padding: 12px 16px;
-  text-align: center;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-top: 12px;
-}
-.sent-feedback.fb-correct { background: rgba(76,175,80,0.12);  border: 1px solid #4caf50; color: #4caf50; }
-.sent-feedback.fb-wrong   { background: rgba(244,67,54,0.1);  border: 1px solid #f44336; color: #f44336; }
-
-/* ── Hama mode ── */
-#hama-screen { display: none; }
-
-.flip-card { perspective: 1200px; margin-bottom: 20px; cursor: pointer; user-select: none; }
-.flip-card-inner {
-  position: relative;
-  width: 100%;
-  transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
-  transform-style: preserve-3d;
-}
-.flip-card-inner.flipped { transform: rotateY(180deg); }
-.flip-card-front,
-.flip-card-back {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  background: #1a1a2e;
-  border: 1px solid #2a2a3e;
-  border-radius: 16px;
-  padding: 48px 24px;
-  text-align: center;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.flip-card-back {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  transform: rotateY(180deg);
-}
-.word-front { font-size: 2.4rem; font-weight: 700; color: #fff; margin-bottom: 12px; }
-.tap-hint   { font-size: 0.8rem; color: #444; }
-.word-back-eng     { font-size: 1.1rem; color: #6c63ff; margin-bottom: 12px; font-weight: 600; }
-.word-back-meaning { font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1.5; }
-
-.hama-eval { display: flex; gap: 12px; margin-bottom: 16px; }
-.btn-hama-known {
-  flex: 1;
-  background: rgba(76,175,80,0.15); border: 2px solid #4caf50; color: #4caf50;
-  padding: 16px; font-size: 1.05rem; font-weight: 700; border-radius: 12px;
-  cursor: pointer; transition: background 0.2s, transform 0.15s; font-family: inherit;
-}
-.btn-hama-known:hover { background: rgba(76,175,80,0.28); transform: translateY(-2px); }
-.btn-hama-unknown {
-  flex: 1;
-  background: rgba(244,67,54,0.15); border: 2px solid #f44336; color: #f44336;
-  padding: 16px; font-size: 1.05rem; font-weight: 700; border-radius: 12px;
-  cursor: pointer; transition: background 0.2s, transform 0.15s; font-family: inherit;
-}
-.btn-hama-unknown:hover { background: rgba(244,67,54,0.28); transform: translateY(-2px); }
-.hama-round-badge { text-align: center; font-size: 0.85rem; color: #555; margin-bottom: 4px; }
-.hama-remaining   { text-align: center; font-size: 0.85rem; color: #e91e63; }
-
 /* ── Result ── */
 #result-screen { display: none; text-align: center; }
-
-.result-card {
-  background: #1a1a2e;
-  border-radius: 16px;
-  padding: 40px 24px;
-  margin-bottom: 24px;
-  border: 1px solid #2a2a3e;
-}
+.result-card { background: #1a1a2e; border-radius: 16px; padding: 40px 24px; margin-bottom: 24px; border: 1px solid #2a2a3e; }
 .score-circle {
-  width: 140px; height: 140px;
-  border-radius: 50%;
-  margin: 0 auto 20px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  font-size: 2.5rem; font-weight: 700;
+  width: 140px; height: 140px; border-radius: 50%; margin: 0 auto 20px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700;
 }
 .score-circle.perfect { background: linear-gradient(135deg,rgba(76,175,80,0.2),rgba(76,175,80,0.05)); border: 3px solid #4caf50; color: #4caf50; }
-.score-circle.great   { background: linear-gradient(135deg,rgba(108,99,255,0.2),rgba(108,99,255,0.05)); border: 3px solid #6c63ff; color: #6c63ff; }
-.score-circle.good    { background: linear-gradient(135deg,rgba(255,152,0,0.2),rgba(255,152,0,0.05)); border: 3px solid #ff9800; color: #ff9800; }
-.score-circle.low     { background: linear-gradient(135deg,rgba(244,67,54,0.2),rgba(244,67,54,0.05)); border: 3px solid #f44336; color: #f44336; }
-.score-circle small   { font-size: 0.9rem; font-weight: 400; color: #888; }
+.score-circle.great { background: linear-gradient(135deg,rgba(108,99,255,0.2),rgba(108,99,255,0.05)); border: 3px solid #6c63ff; color: #6c63ff; }
+.score-circle.good { background: linear-gradient(135deg,rgba(255,152,0,0.2),rgba(255,152,0,0.05)); border: 3px solid #ff9800; color: #ff9800; }
+.score-circle.low { background: linear-gradient(135deg,rgba(244,67,54,0.2),rgba(244,67,54,0.05)); border: 3px solid #f44336; color: #f44336; }
+.score-circle small { font-size: 0.9rem; font-weight: 400; color: #888; }
 
 .result-stats { display: flex; justify-content: center; gap: 32px; margin-top: 16px; font-size: 1.1rem; }
 .result-stats .stat-correct { color: #4caf50; }
-.result-stats .stat-wrong   { color: #f44336; }
+.result-stats .stat-wrong { color: #f44336; }
 
 .wrong-section { text-align: left; margin-bottom: 24px; }
 .wrong-section h3 { font-size: 1.1rem; margin-bottom: 12px; color: #f44336; }
 .wrong-list { background: #1a1a2e; border-radius: 12px; border: 1px solid #2a2a3e; overflow: hidden; }
 .wrong-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid #2a2a3e; }
 .wrong-item:last-child { border-bottom: none; }
-.wrong-item .word    { font-weight: 600; color: #fff; font-size: 1.05rem; }
+.wrong-item .word { font-weight: 600; color: #fff; font-size: 1.05rem; }
 .wrong-item .meaning { color: #4caf50; font-size: 0.95rem; text-align: right; max-width: 55%; }
+.wrong-item .miss-count { color: #f44336; font-size: 0.75rem; margin-left: 8px; white-space: nowrap; }
 
-.btn-row { display: flex; gap: 12px; justify-content: center; }
+.btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .btn-retry {
-  background: linear-gradient(135deg, #6c63ff, #e91e63);
-  border: none; color: white; padding: 14px 36px;
-  font-size: 1.05rem; border-radius: 12px; cursor: pointer;
-  transition: transform 0.2s; font-family: inherit;
+  background: linear-gradient(135deg, #6c63ff, #e91e63); border: none; color: white; padding: 14px 32px;
+  font-size: 1.02rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s; font-family: inherit;
 }
 .btn-retry:hover { transform: translateY(-2px); }
 .btn-secondary {
-  background: transparent; border: 2px solid #f44336; color: #f44336;
-  padding: 14px 36px; font-size: 1.05rem; border-radius: 12px;
-  cursor: pointer; transition: transform 0.2s, background 0.2s; font-family: inherit;
+  background: transparent; border: 2px solid #f44336; color: #f44336; padding: 14px 32px;
+  font-size: 1.02rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s, background 0.2s; font-family: inherit;
 }
 .btn-secondary:hover { background: rgba(244,67,54,0.1); transform: translateY(-2px); }
 .btn-home-result {
-  background: transparent; border: 2px solid #6c63ff; color: #6c63ff;
-  padding: 14px 36px; font-size: 1.05rem; border-radius: 12px;
-  cursor: pointer; transition: transform 0.2s, background 0.2s; font-family: inherit;
+  background: transparent; border: 2px solid #6c63ff; color: #6c63ff; padding: 14px 32px;
+  font-size: 1.02rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s, background 0.2s; font-family: inherit;
 }
 .btn-home-result:hover { background: rgba(108,99,255,0.1); transform: translateY(-2px); }
 
-/* ── Quiz Screen ── */
-#quiz-screen { display: none; }
+/* ── Quiz / Bulk screens ── */
+#quiz-screen, #bulk-screen, #wrongnote-screen { display: none; }
 
-/* ── Bulk Typing mode ── */
-#bulk-screen { display: none; }
-
-.bulk-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 24px;
-}
-
-.bulk-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #1a1a2e;
-  border: 1px solid #2a2a3e;
-  border-radius: 12px;
-  padding: 12px 16px;
-  transition: border-color 0.2s;
-}
-
+.bulk-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.bulk-row { display: flex; align-items: center; gap: 12px; background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 12px; padding: 12px 16px; transition: border-color 0.2s; }
 .bulk-row.row-correct { border-color: #4caf50; background: rgba(76,175,80,0.07); }
-.bulk-row.row-wrong   { border-color: #f44336; background: rgba(244,67,54,0.07); }
-
-.bulk-num {
-  width: 28px; height: 28px; line-height: 28px;
-  text-align: center; border-radius: 50%;
-  background: #2a2a3e; font-size: 0.8rem; font-weight: 600;
-  flex-shrink: 0; color: #888;
-}
+.bulk-row.row-wrong { border-color: #f44336; background: rgba(244,67,54,0.07); }
+.bulk-num { width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: #2a2a3e; font-size: 0.8rem; font-weight: 600; flex-shrink: 0; color: #888; }
 .row-correct .bulk-num { background: #4caf50; color: #fff; }
-.row-wrong   .bulk-num { background: #f44336; color: #fff; }
-
-.bulk-word {
-  font-size: 1.05rem; font-weight: 700; color: #fff;
-  min-width: 120px; flex-shrink: 0;
-}
-
-.bulk-input {
-  flex: 1;
-  background: #0f0f1a;
-  border: 1px solid #2a2a3e;
-  color: #e0e0e0;
-  padding: 8px 12px;
-  font-size: 0.95rem;
-  border-radius: 8px;
-  outline: none;
-  font-family: inherit;
-  transition: border-color 0.2s;
-}
+.row-wrong .bulk-num { background: #f44336; color: #fff; }
+.bulk-word { font-size: 1.05rem; font-weight: 700; color: #fff; min-width: 120px; flex-shrink: 0; }
+.bulk-input { flex: 1; background: #0f0f1a; border: 1px solid #2a2a3e; color: #e0e0e0; padding: 8px 12px; font-size: 0.95rem; border-radius: 8px; outline: none; font-family: inherit; transition: border-color 0.2s; }
 .bulk-input:focus { border-color: #6c63ff; }
 .bulk-input:disabled { color: #888; }
 .bulk-input.inp-correct { border-color: #4caf50; color: #4caf50; background: rgba(76,175,80,0.08); }
-.bulk-input.inp-wrong   { border-color: #f44336; color: #f44336; background: rgba(244,67,54,0.08); }
-
-.bulk-answer {
-  font-size: 0.85rem; color: #4caf50; min-width: 80px;
-  text-align: right; display: none;
-}
+.bulk-input.inp-wrong { border-color: #f44336; color: #f44336; background: rgba(244,67,54,0.08); }
+.bulk-answer { font-size: 0.85rem; color: #4caf50; min-width: 80px; text-align: right; display: none; }
 .row-wrong .bulk-answer { display: block; }
 
 .btn-grade {
-  width: 100%;
-  background: linear-gradient(135deg, #6c63ff, #e91e63);
-  border: none; color: white; padding: 16px;
-  font-size: 1.1rem; font-weight: 700; border-radius: 12px;
-  cursor: pointer; transition: opacity 0.2s; font-family: inherit;
-  margin-bottom: 12px;
+  width: 100%; background: linear-gradient(135deg, #6c63ff, #e91e63); border: none; color: white; padding: 16px;
+  font-size: 1.1rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: opacity 0.2s; font-family: inherit; margin-bottom: 12px;
 }
 .btn-grade:hover { opacity: 0.9; }
 .btn-grade:disabled { opacity: 0.4; cursor: default; }
 
-.bulk-summary {
-  display: none;
-  text-align: center;
-  background: #1a1a2e;
-  border: 1px solid #2a2a3e;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  font-size: 1.05rem;
-}
+.bulk-summary { display: none; text-align: center; background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 12px; padding: 20px; margin-bottom: 20px; font-size: 1.05rem; }
 .bulk-summary .bs-correct { color: #4caf50; font-weight: 700; font-size: 1.2rem; }
-.bulk-summary .bs-wrong   { color: #f44336; font-weight: 700; font-size: 1.2rem; }
+.bulk-summary .bs-wrong { color: #f44336; font-weight: 700; font-size: 1.2rem; }
+
+/* ── Wrong note screen ── */
+.wn-empty { text-align: center; color: #666; padding: 60px 20px; font-size: 0.95rem; }
+.wn-stats { text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 16px; }
 
 @media (max-width: 480px) {
   .mode-card { min-width: 100%; }
   .word-card .english { font-size: 1.7rem; }
   .option-btn { font-size: 0.95rem; padding: 14px 16px; }
   h1 { font-size: 1.6rem; }
-  .sent-card { font-size: 1rem; padding: 24px 16px; }
   .bulk-word { min-width: 90px; font-size: 0.95rem; }
+  .day-grid { grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); }
 }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- ── Landing ── -->
+  <!-- ── Home ── -->
   <div id="start-screen">
     <h1>Word Master</h1>
-    <p class="subtitle">모드를 선택하세요</p>
+    <p class="subtitle">Day별로 끊어서 영단어를 암기하세요 (총 1100단어 · 28일)</p>
+
+    <div class="wrongnote-card" onclick="openWrongNote()">
+      <div class="wn-title">📕 오답 노트</div>
+      <div class="wn-count" id="home-wn-count">지금까지 틀린 단어 0개</div>
+    </div>
+
+    <h2 class="section-title">Day 선택 <span class="badge">모드 1·2·3</span></h2>
+    <p class="section-desc">Day를 고르면 [단어→뜻 선택] · [뜻→단어 선택] · [40개 한번에 쓰기] 중 하나를 진행할 수 있어요.</p>
+    <div class="day-grid" id="day-grid"></div>
+
+    <h2 class="section-title">정방향 조합 학습 <span class="badge">모드 4</span></h2>
+    <p class="section-desc">Day N + Day N+1의 단어를 합쳐 무작위 50개를 뽑고, [단어선택]·[뜻선택]·[뜻쓰기]를 섞어서 출제합니다.</p>
+    <div class="pair-grid" id="pair-grid-forward"></div>
+
+    <h2 class="section-title">역방향 조합 학습 <span class="badge">모드 5</span></h2>
+    <p class="section-desc">마지막 Day부터 거꾸로 Day N + Day N-1을 합쳐 같은 방식으로 출제합니다.</p>
+    <div class="pair-grid" id="pair-grid-backward"></div>
+  </div>
+
+  <!-- ── Day detail (mode picker) ── -->
+  <div id="day-detail-screen">
+    <div class="quiz-top-bar">
+      <button class="btn-home" onclick="goHome()">← Day 선택으로</button>
+    </div>
+    <div class="detail-header">
+      <div class="dh-title" id="dd-title"></div>
+      <div class="dh-sub" id="dd-sub"></div>
+    </div>
     <div class="mode-cards">
-      <div class="mode-card" onclick="startQuiz(null,'en-to-ko')">
-        <div class="mode-arrow"><span class="from">English</span><span class="arrow">→</span><span class="to">한글</span></div>
-        <div class="mode-title">영단어 → 한글 뜻</div>
-        <div class="mode-desc">영단어를 보고<br>올바른 한글 뜻을 고르세요</div>
+      <div class="mode-card" onclick="startDayChoiceQuiz(currentDay, 'choose-meaning')">
+        <div class="mode-icon">🇬🇧→🇰🇷</div>
+        <div class="mode-title">단어 → 뜻 선택</div>
+        <div class="mode-desc">영단어를 보고<br>한글 뜻 5개 중 정답을 고르세요</div>
       </div>
-      <div class="mode-card" onclick="startQuiz(null,'ko-to-en')">
-        <div class="mode-arrow"><span class="from">한글</span><span class="arrow">→</span><span class="to">English</span></div>
-        <div class="mode-title">한글 뜻 → 영단어</div>
-        <div class="mode-desc">한글 뜻을 보고<br>올바른 영단어를 고르세요</div>
+      <div class="mode-card" onclick="startDayChoiceQuiz(currentDay, 'choose-word')">
+        <div class="mode-icon">🇰🇷→🇬🇧</div>
+        <div class="mode-title">뜻 → 단어 선택</div>
+        <div class="mode-desc">한글 뜻을 보고<br>영단어 5개 중 정답을 고르세요</div>
       </div>
-      <div class="mode-card" onclick="startQuiz(null,'typing')">
-        <div class="mode-arrow"><span class="from">English</span><span class="arrow">→</span><span class="to">직접 입력</span></div>
-        <div class="mode-title">직접 입력 모드</div>
-        <div class="mode-desc">영단어를 보고 한글 뜻을<br>직접 타이핑 · 자동 채점</div>
-      </div>
-      <div class="mode-card" onclick="startSentence()">
-        <div class="mode-arrow"><span class="from">예문</span><span class="arrow">→</span><span class="to">빈칸</span></div>
-        <div class="mode-title">예문 빈칸 채우기</div>
-        <div class="mode-desc">예문의 빈칸에 알맞은<br>영단어를 4개 중 고르세요</div>
-      </div>
-      <div class="mode-card full-width" onclick="startBulk()" style="border-color:#e91e6344;">
-        <div class="mode-arrow"><span class="from" style="color:#6c63ff;">30단어</span><span class="arrow">→</span><span class="to" style="color:#e91e63;">한꺼번에 입력</span></div>
-        <div class="mode-title">한꺼번에 쓰기</div>
-        <div class="mode-desc">30개 영단어가 한 번에 표시 → 한글 뜻을 모두 채운 뒤 한 번에 채점!</div>
-      </div>
-      <div class="mode-card full-width" onclick="startHama()" style="border-color:#6c63ff44;">
-        <div class="mode-arrow"><span class="from" style="color:#e91e63;">학습</span><span class="arrow">→</span><span class="to" style="color:#6c63ff;">반복</span></div>
-        <div class="mode-title">해마 학습법</div>
-        <div class="mode-desc">카드를 보고 뜻을 떠올린 뒤 확인 → 알았다 / 몰랐다<br>모른 단어만 반복해서 모두 외울 때까지!</div>
+      <div class="mode-card full-width" onclick="startBulk(currentDay)" style="border-color:#e91e6344;">
+        <div class="mode-icon">✍️</div>
+        <div class="mode-title">40개 한번에 쓰기</div>
+        <div class="mode-desc">이 Day의 단어가 한 번에 표시 → 한글 뜻을 모두 채운 뒤 한 번에 채점!</div>
       </div>
     </div>
   </div>
 
-  <!-- ── Quiz (en-to-ko / ko-to-en / typing) ── -->
+  <!-- ── Quiz (generic: choose-meaning / choose-word / write-meaning, possibly mixed) ── -->
   <div id="quiz-screen">
     <div class="quiz-top-bar">
-      <button class="btn-home" onclick="goHome()">← 모드 선택</button>
+      <button class="btn-home" onclick="goHome()">← 홈으로</button>
       <span class="quiz-mode-label" id="quiz-mode-label"></span>
     </div>
     <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
@@ -539,12 +295,12 @@ h1 {
       <span id="quiz-counter">1 / 30</span>
       <span>
         <span class="correct" id="score-correct">✓ 0</span>&nbsp;&nbsp;
-        <span class="wrong"   id="score-wrong">✗ 0</span>
+        <span class="wrong" id="score-wrong">✗ 0</span>
       </span>
     </div>
     <div class="word-card">
+      <div class="qtype-tag" id="quiz-qtype-tag" style="display:none;"></div>
       <div class="english" id="quiz-word"></div>
-      <div class="english" id="quiz-meaning" style="display:none; font-size:1.5rem;"></div>
     </div>
     <div class="options" id="options-container"></div>
     <div class="typing-area" id="typing-area" style="display:none;">
@@ -558,30 +314,11 @@ h1 {
     </div>
   </div>
 
-  <!-- ── Sentence ── -->
-  <div id="sentence-screen">
-    <div class="quiz-top-bar">
-      <button class="btn-home" onclick="goHome()">← 모드 선택</button>
-      <span class="quiz-mode-label">예문 빈칸 채우기</span>
-    </div>
-    <div class="progress-bar"><div class="progress-fill" id="sent-progress"></div></div>
-    <div class="quiz-info">
-      <span id="sent-counter">1 / 30</span>
-      <span>
-        <span class="correct" id="sent-correct">✓ 0</span>&nbsp;&nbsp;
-        <span class="wrong"   id="sent-wrong">✗ 0</span>
-      </span>
-    </div>
-    <div class="sent-card" id="sent-text"></div>
-    <div class="options" id="sent-options"></div>
-    <div class="sent-feedback" id="sent-feedback"></div>
-  </div>
-
-  <!-- ── Bulk Typing ── -->
+  <!-- ── Bulk Typing (mode 3) ── -->
   <div id="bulk-screen">
     <div class="quiz-top-bar">
-      <button class="btn-home" onclick="goHome()">← 모드 선택</button>
-      <span class="quiz-mode-label">한꺼번에 쓰기</span>
+      <button class="btn-home" onclick="goHome()">← 홈으로</button>
+      <span class="quiz-mode-label" id="bulk-mode-label">40개 한번에 쓰기</span>
     </div>
     <div class="bulk-summary" id="bulk-summary">
       <div><span class="bs-correct" id="bulk-correct-count"></span> &nbsp;/&nbsp; <span style="color:#888;" id="bulk-total-count"></span></div>
@@ -590,43 +327,9 @@ h1 {
     <div class="bulk-list" id="bulk-list"></div>
     <button class="btn-grade" id="btn-grade" onclick="gradeBulk()">채점하기</button>
     <div class="btn-row" id="bulk-btn-row" style="display:none;">
-      <button class="btn-retry" onclick="startBulk()">다시 하기</button>
-      <button class="btn-home-result" onclick="goHome()">모드 선택으로</button>
+      <button class="btn-retry" onclick="startBulk(currentDay)">다시 하기</button>
+      <button class="btn-home-result" onclick="goHome()">홈으로</button>
     </div>
-  </div>
-
-  <!-- ── Hama ── -->
-  <div id="hama-screen">
-    <div class="quiz-top-bar">
-      <button class="btn-home" onclick="goHome()">← 모드 선택</button>
-      <span class="quiz-mode-label">해마 학습법</span>
-    </div>
-    <div class="progress-bar"><div class="progress-fill" id="hama-progress-fill"></div></div>
-    <div class="quiz-info">
-      <span id="hama-counter">1 / 30</span>
-      <span>
-        <span class="correct" id="hama-known-count">✓ 0</span>&nbsp;&nbsp;
-        <span class="wrong"   id="hama-unknown-count">✗ 0</span>
-      </span>
-    </div>
-    <div class="flip-card" id="flip-card" onclick="flipCard()">
-      <div class="flip-card-inner" id="flip-card-inner">
-        <div class="flip-card-front">
-          <div class="word-front" id="hama-word"></div>
-          <div class="tap-hint">탭하여 뜻 확인 ▾</div>
-        </div>
-        <div class="flip-card-back">
-          <div class="word-back-eng" id="hama-word-back"></div>
-          <div class="word-back-meaning" id="hama-meaning"></div>
-        </div>
-      </div>
-    </div>
-    <div class="hama-eval" id="hama-eval" style="display:none;">
-      <button class="btn-hama-unknown" onclick="hamaEval(false)">✗ &nbsp;몰랐다</button>
-      <button class="btn-hama-known"   onclick="hamaEval(true)">✓ &nbsp;알았다</button>
-    </div>
-    <div class="hama-round-badge" id="hama-round-badge"></div>
-    <div class="hama-remaining"   id="hama-remaining"></div>
   </div>
 
   <!-- ── Result ── -->
@@ -640,19 +343,35 @@ h1 {
       </div>
       <div class="result-stats">
         <span class="stat-correct" id="final-correct"></span>
-        <span class="stat-wrong"   id="final-wrong"></span>
+        <span class="stat-wrong" id="final-wrong"></span>
       </div>
     </div>
     <div class="wrong-section" id="wrong-section" style="display:none;">
-      <h3>틀린 단어 목록</h3>
+      <h3>틀린 단어 목록 (이번 세션)</h3>
       <div class="wrong-list" id="wrong-list"></div>
     </div>
     <div class="btn-row">
-      <button class="btn-retry"     id="btn-retry">다시 하기</button>
+      <button class="btn-retry" id="btn-retry">다시 하기</button>
       <button class="btn-secondary" id="btn-retry-wrong" style="display:none;" onclick="retryWrong()">틀린 단어만</button>
     </div>
     <div class="btn-row" style="margin-top:12px;">
-      <button class="btn-home-result" onclick="goHome()">모드 선택으로</button>
+      <button class="btn-home-result" onclick="openWrongNote()">오답 노트 보기</button>
+      <button class="btn-home-result" onclick="goHome()">홈으로</button>
+    </div>
+  </div>
+
+  <!-- ── Wrong Note (persistent, cross-session) ── -->
+  <div id="wrongnote-screen">
+    <div class="quiz-top-bar">
+      <button class="btn-home" onclick="goHome()">← 홈으로</button>
+      <span class="quiz-mode-label">오답 노트</span>
+    </div>
+    <div class="wn-stats" id="wn-stats"></div>
+    <div class="wrong-list" id="wn-list"></div>
+    <div class="wn-empty" id="wn-empty" style="display:none;">아직 틀린 단어가 없어요. 잘하고 있어요! 🎉</div>
+    <div class="btn-row" style="margin-top:20px;">
+      <button class="btn-secondary" onclick="clearWrongNote()">오답 노트 비우기</button>
+      <button class="btn-home-result" onclick="goHome()">홈으로</button>
     </div>
   </div>
 
@@ -660,137 +379,10 @@ h1 {
 
 <script>
 // ─────────────────────────────────────────────
-//  WORD DATA
+//  WORD DATA  ({id, day, word, meaning})
 // ─────────────────────────────────────────────
-const WORDS = [
-  // ── 1군: 늘리다/줄이다·강화 ──
-  {word:"enhance",     meaning:"강화하다",              sentence:"Regular exercise can ___ your physical and mental health."},
-  {word:"diminish",    meaning:"줄이다, 약화시키다",     sentence:"The noise gradually began to ___ as the crowd dispersed."},
-  {word:"deplete",     meaning:"고갈시키다",             sentence:"Overuse of pesticides may ___ the soil of essential nutrients."},
-  {word:"accumulate",  meaning:"모으다, 축적하다",       sentence:"Dust tends to ___ on surfaces that are rarely cleaned."},
-  {word:"prolong",     meaning:"연장하다",               sentence:"Doctors warned that stress could ___ the patient's recovery time."},
-  {word:"surpass",     meaning:"능가하다",               sentence:"Her final performance managed to ___ all of our expectations."},
-  {word:"attain",      meaning:"이루다, 달성하다",       sentence:"With consistent effort, anyone can ___ their personal goals."},
-
-  // ── 1군: 억압/지배/강요 ──
-  {word:"suppress",    meaning:"억압하다, 참다",         sentence:"The government tried to ___ the protests by force."},
-  {word:"dominate",    meaning:"지배하다",               sentence:"One company began to ___ the entire smartphone market."},
-  {word:"compel",      meaning:"강요하다",               sentence:"The new law will ___ all drivers to wear seatbelts."},
-  {word:"violate",     meaning:"위반하다, 침해하다",     sentence:"Hacking into someone's account can ___ their privacy."},
-  {word:"discourage",  meaning:"낙담시키다, 말리다",     sentence:"Repeated failure can ___ students from trying again."},
-  {word:"disrupt",     meaning:"붕괴시키다",             sentence:"The storm threatened to ___ the city's power supply."},
-
-  // ── 1군: 속이다/숨기다 ──
-  {word:"deceive",     meaning:"속이다, 기만하다",       sentence:"He tried to ___ his parents by hiding his bad grades."},
-  {word:"disguise",    meaning:"숨기다, 변장하다",       sentence:"She wore a hat and glasses to ___ herself in the crowd."},
-
-  // ── 1군: 감정/반응 ──
-  {word:"resent",      meaning:"분개하다, 화를 내다",   sentence:"Many employees began to ___ the unfair treatment at work."},
-  {word:"afflict",     meaning:"괴롭히다",               sentence:"Chronic pain can ___ people of all ages and backgrounds."},
-  {word:"overwhelm",   meaning:"압도하다, 당황하게 하다",sentence:"The sheer amount of homework began to ___ the students."},
-  {word:"contend",     meaning:"싸우다, 주장하다",       sentence:"Athletes must ___ with both physical and mental pressure."},
-
-  // ── 1군: 따르다/견디다 ──
-  {word:"adhere",      meaning:"고수하다",               sentence:"You must ___ to the rules if you want to join the team."},
-  {word:"conform",     meaning:"따르다, 순응하다",       sentence:"New employees are expected to ___ to the company's culture."},
-  {word:"persist",     meaning:"고집하다, 지속하다",     sentence:"If the symptoms ___, please see a doctor immediately."},
-  {word:"withstand",   meaning:"견디다, 버티다",         sentence:"The bridge was built to ___ strong winds and earthquakes."},
-  {word:"undergo",     meaning:"겪다",                   sentence:"She had to ___ surgery to recover from the injury."},
-  {word:"cope",        meaning:"대처하다",               sentence:"Learning to ___ with stress is an important life skill."},
-
-  // ── 1군: 촉발/유도 ──
-  {word:"induce",      meaning:"유도하다, 설득하여 ~시키다", sentence:"Warm milk is said to ___ sleep in some people."},
-  {word:"provoke",     meaning:"선동하다, 자극하다",     sentence:"His rude comment was enough to ___ a heated argument."},
-  {word:"incline",     meaning:"~쪽으로 기울다, 내키게 하다", sentence:"I'm ___ to agree with your suggestion on this matter."},
-
-  // ── 1군: 회복/치료 ──
-  {word:"restore",     meaning:"이전상태로 회복시키다", sentence:"The museum worked hard to ___ the ancient painting to its original state."},
-  {word:"prescribe",   meaning:"처방하다, 규정하다",     sentence:"The doctor decided to ___ antibiotics for the infection."},
-  {word:"diagnose",    meaning:"진단하다",               sentence:"It can be difficult to ___ a disease in its early stages."},
-  {word:"nourish",     meaning:"영양분을 주다, 기르다", sentence:"A balanced diet helps ___ the body and support healthy growth."},
-  {word:"foster",      meaning:"육성하다",               sentence:"Good teachers ___ a genuine love of learning in their students."},
-  {word:"flourish",    meaning:"번성하다, 건강하다",     sentence:"Small businesses began to ___ after the new trade policy was introduced."},
-  {word:"linger",      meaning:"남아 있다, 어슬렁거리다",sentence:"The smell of fresh bread continued to ___ in the kitchen all morning."},
-
-  // ── 1군: 말/판단/설명 ──
-  {word:"contradict",  meaning:"모순되다, 반박하다",     sentence:"His actions seemed to ___ everything he had previously said."},
-  {word:"exemplify",   meaning:"예시하다",               sentence:"Her dedication to work seemed to ___ the team's core values perfectly."},
-  {word:"embody",      meaning:"구체화하다, 포함하다",   sentence:"The new statue was designed to ___ the spirit of freedom."},
-  {word:"boast",       meaning:"자랑하다",               sentence:"He liked to ___ about his achievements in front of others."},
-  {word:"distortion",  meaning:"왜곡",                   sentence:"The report was widely criticized for its ___ of the actual events."},
-
-  // ── 1군: 기타 핵심 ──
-  {word:"discriminate",meaning:"차별하다, 구별하다",     sentence:"It is illegal to ___ against employees based on their age."},
-  {word:"exclude",     meaning:"제외하다, 차단하다",     sentence:"The club decided to ___ members who repeatedly broke the rules."},
-  {word:"compensate",  meaning:"보상하다",               sentence:"The company agreed to ___ the workers fairly for all overtime hours."},
-  {word:"anticipate",  meaning:"예상하다, 기대하다",     sentence:"Weather forecasters ___ heavy rain throughout the entire weekend."},
-  {word:"devote",      meaning:"(시간, 노력) 쏟다",     sentence:"She chose to ___ her career to helping underprivileged children."},
-  {word:"overlook",    meaning:"간과하다, 내려다보다",   sentence:"It's easy to ___ small but important details when you're in a hurry."},
-
-  // ── 2군: 바꾸다/변경 ──
-  {word:"alter",       meaning:"바꾸다, 변경하다",       sentence:"The designer decided to ___ the dress to fit the client better."},
-  {word:"revise",      meaning:"개정하다, 수정하다",     sentence:"The author had to ___ the entire manuscript before it could be published."},
-  {word:"refine",      meaning:"개선하다, 정제하다",     sentence:"Scientists continue to ___ their methods in order to improve accuracy."},
-  {word:"adapt",       meaning:"적응시키다",             sentence:"Animals must ___ to survive sudden changes in their environment."},
-  {word:"formulate",   meaning:"만들어내다, 공식화하다", sentence:"The team worked together to ___ a new and effective marketing strategy."},
-
-  // ── 2군: 숨기다/드러내다 ──
-  {word:"conceal",     meaning:"숨기다",                 sentence:"She tried to ___ her nervousness behind a confident smile."},
-  {word:"disclose",    meaning:"폭로하다, 드러내다",     sentence:"The journalist refused to ___ the identity of her confidential source."},
-  {word:"expose",      meaning:"노출시키다, 폭로하다",   sentence:"The investigation helped ___ the deep corruption within the company."},
-  {word:"detect",      meaning:"찾아내다, 감지하다",     sentence:"New medical technology can ___ early signs of the disease accurately."},
-
-  // ── 2군: 관계/일치 ──
-  {word:"relate",      meaning:"관련시키다",             sentence:"Try to ___ the new vocabulary words to ones you already know well."},
-  {word:"correspond",  meaning:"일치하다, 해당하다, 편지를 주고받다", sentence:"The information on the map should ___ to the actual layout of the city."},
-  {word:"collide",     meaning:"충돌하다, 일치하지 않다",sentence:"Two vehicles began to ___ at the busy downtown intersection."},
-
-  // ── 2군: 이동/정착 ──
-  {word:"migrate",     meaning:"이주하다, 이동하다",     sentence:"Many birds ___ south during the cold winter months each year."},
-  {word:"settle",      meaning:"정착하다",               sentence:"After years of travel, the family decided to ___ near the coast."},
-  {word:"withdraw",    meaning:"인출하다",               sentence:"She went to the ATM to ___ some cash before the long trip."},
-  {word:"retreat",     meaning:"후퇴하다",               sentence:"Facing a stronger enemy, the army had no choice but to ___."},
-
-  // ── 2군: 주고받다/거래 ──
-  {word:"deliver",     meaning:"배달하다, (연설을) 하다",sentence:"The company promises to ___ your order within 24 hours of purchase."},
-  {word:"negotiate",   meaning:"협상하다",               sentence:"Both sides finally agreed to sit down and ___ a new trade deal."},
-  {word:"consent",     meaning:"동의하다, 허락하다",     sentence:"Patients must ___ before any major medical procedure is performed."},
-  {word:"recruit",     meaning:"모집하다",               sentence:"The company is actively looking to ___ new talent for its tech division."},
-  {word:"discharge",   meaning:"해고하다, 방출하다, 방면하다", sentence:"The hospital decided to ___ the patient after confirming a full recovery."},
-  {word:"reject",      meaning:"거부하다, 거절하다",     sentence:"The committee chose to ___ the proposal due to serious budget concerns."},
-
-  // ── 2군: 전시/공표 ──
-  {word:"exhibit",     meaning:"전시하다",               sentence:"The gallery will ___ works by local artists throughout this weekend."},
-  {word:"notify",      meaning:"통보하다, 알리다",       sentence:"Please ___ us at least a day in advance if you cannot attend the meeting."},
-  {word:"promote",     meaning:"승진시키다",             sentence:"She was the first woman to be ___ to the position of director."},
-  {word:"classify",    meaning:"분류하다",               sentence:"Scientists ___ living things into groups based on shared characteristics."},
-
-  // ── 2군: 추측/생각 ──
-  {word:"speculate",   meaning:"사색하다, 투기하다",     sentence:"Experts began to ___ about the true cause of the sudden market drop."},
-  {word:"grasp",       meaning:"붙잡다",                 sentence:"It took her a moment to fully ___ the meaning of the unexpected news."},
-  {word:"admire",      meaning:"존경하다",               sentence:"People around the world ___ her remarkable courage and determination."},
-
-  // ── 2군: 유지/충족 ──
-  {word:"maintain",    meaning:"유지하다",               sentence:"It's important to ___ a healthy balance between work and personal rest."},
-  {word:"satisfy",     meaning:"만족시키다",             sentence:"A simple and sincere thank-you was enough to ___ the customer."},
-  {word:"prevent",     meaning:"예방하다, 막다",         sentence:"Washing your hands regularly can help ___ the spread of harmful germs."},
-  {word:"sufficient",  meaning:"충분한",                 sentence:"Make sure there is ___ food prepared for all the guests at the party."},
-  {word:"adequate",    meaning:"적절한",                 sentence:"The emergency shelter provided ___ protection from the freezing weather."},
-  {word:"thorough",    meaning:"철저한",                 sentence:"The inspector conducted a ___ examination of the entire building."},
-  {word:"undertake",   meaning:"착수하다, 약속하다",     sentence:"The company agreed to ___ the large construction project next spring."},
-
-  // ── 2군: 성격/태도 형용사 ──
-  {word:"ambitious",   meaning:"야망을 가진",            sentence:"She was a highly ___ young professional who was always aiming for the top."},
-  {word:"hostile",     meaning:"적대적인",               sentence:"The audience's reaction to the controversial speech was surprisingly ___."},
-  {word:"vulnerable",  meaning:"상처받기 쉬운, 취약한", sentence:"Young children are especially ___ to the harmful effects of air pollution."},
-  {word:"authentic",   meaning:"진정한, 진짜의",         sentence:"Modern travelers often seek ___ cultural experiences when visiting new places."},
-  {word:"naive",       meaning:"순진한",                 sentence:"It was ___ to believe that such a complex deal would come without any conditions."},
-  {word:"obedient",    meaning:"유순한, 순종하는",       sentence:"The well-trained dog was completely ___ to all of its owner's commands."},
-  {word:"rigid",       meaning:"엄격한, 굳은",           sentence:"The company's overly ___ policies made it very hard to adapt to change."},
-  {word:"subtle",      meaning:"미묘한, 교묘한, 예민한", sentence:"There was a ___ but important difference in tone between the two speeches."},
-  {word:"radical",     meaning:"근본적인, 급진적인",     sentence:"The newly appointed CEO proposed ___ changes to the entire company structure."},
-  {word:"superior",    meaning:"뛰어난",                 sentence:"This updated product is clearly ___ to the older version in every measurable way."},
-];
+const WORDS = [{"id":1,"day":1,"word":"provide","meaning":"[동] 제공하다, 공급하다, 준비하다"},{"id":2,"day":1,"word":"develop","meaning":"[동] 개발하다, 발달하다, 발전시키다"},{"id":3,"day":1,"word":"service","meaning":"[명] 서비스, 근무, 봉사, 공공 업무"},{"id":4,"day":1,"word":"inform","meaning":"[동] 알리다, 통지하다"},{"id":5,"day":1,"word":"relationship","meaning":"[명] 관계"},{"id":6,"day":1,"word":"improve","meaning":"[동] 향상시키다, 나아지다, 향상하다"},{"id":7,"day":1,"word":"individual","meaning":"[형] 개인의, 개인적인, [명] 개인"},{"id":8,"day":1,"word":"require","meaning":"[동] 요구하다, 필요로 하다"},{"id":9,"day":1,"word":"advise","meaning":"[동] 충고하다, 조언하다"},{"id":10,"day":1,"word":"social","meaning":"[형] 사회의, 사교적인"},{"id":11,"day":1,"word":"amount","meaning":"[명] 총액, 총계, 양, [동] 총계가 ~이 되다"},{"id":12,"day":1,"word":"behave","meaning":"[동] 행동하다"},{"id":13,"day":1,"word":"employ","meaning":"[동] 고용하다, 쓰다"},{"id":14,"day":1,"word":"attitude","meaning":"[명] 태도, 입장"},{"id":15,"day":1,"word":"research","meaning":"[명] 연구하다, 조사하다, [명] 연구, 조사"},{"id":16,"day":1,"word":"audience","meaning":"[명] 청중, 관객"},{"id":17,"day":1,"word":"volunteer","meaning":"[명] 지원자, 자원봉사, 자원봉사자, [동] 지원하다, 자원봉사하다"},{"id":18,"day":1,"word":"influence","meaning":"[명] 영향, 영향을 미치는 것[사람], [동] 영향을 미치다"},{"id":19,"day":1,"word":"terrible","meaning":"[형] 끔직한, 형편없는, 무서운"},{"id":20,"day":1,"word":"opportunity","meaning":"[명] 기회"},{"id":21,"day":1,"word":"ability","meaning":"[명] 능력, 재능"},{"id":22,"day":1,"word":"expense","meaning":"[명] 비용, 지출"},{"id":23,"day":1,"word":"local","meaning":"[형] 지역의, 장소의, 지방의"},{"id":24,"day":1,"word":"involve","meaning":"[동] 관련시키다, 포함하다, 관련되다"},{"id":25,"day":1,"word":"stress","meaning":"[명] 스트레스, 긴장, 강조, [동] 강조하다, 압력을 주다"},{"id":26,"day":1,"word":"therefore","meaning":"[부] 그러므로, 그 결과"},{"id":27,"day":1,"word":"positive","meaning":"[형] 긍정적인, 낙관적인, 확신하는"},{"id":28,"day":1,"word":"average","meaning":"[형] 평균의, 보통의, [명] 평균, 보통 수준, [동] 평균 ~이다"},{"id":29,"day":1,"word":"ride","meaning":"[동] 타다[명] 타기, 태우기, 타고가기"},{"id":30,"day":1,"word":"encourage","meaning":"[동] 격려하다, 권장하다, 부추기다, 촉구하다"},{"id":31,"day":1,"word":"determine","meaning":"[동] 결정하다, 결심하다"},{"id":32,"day":1,"word":"international","meaning":"[형] 국제의, 국제적인"},{"id":33,"day":1,"word":"consume","meaning":"[동] 소비하다, 먹다[마시다]"},{"id":34,"day":1,"word":"impress","meaning":"[동] 감동시키다, 깊은 인상을 주다"},{"id":35,"day":1,"word":"object","meaning":"[명] 물건, 물체, 목표, [동] 반대하다"},{"id":36,"day":1,"word":"available","meaning":"[형] 이용할 수 있는, 쓸모있는, 시간이 있는"},{"id":37,"day":1,"word":"contain","meaning":"[동] 들어있다, 포함하다, 함유하다, 억제하다"},{"id":38,"day":1,"word":"recognize","meaning":"[동] 인지하다 , 인정하다, 알아보다"},{"id":39,"day":1,"word":"material","meaning":"[명] 재료, 소재, 물질, [형] 물질의"},{"id":40,"day":1,"word":"comfort","meaning":"[명] 편안, 평안함, 위안, 위로, [동] 편안하게 하다, 위로하다"},{"id":41,"day":2,"word":"emotion","meaning":"[명] 감정"},{"id":42,"day":2,"word":"amaze","meaning":"[동] 놀라게 하다"},{"id":43,"day":2,"word":"reduce","meaning":"[동] 줄이다, 낮추다"},{"id":44,"day":2,"word":"discover","meaning":"[동] 발견하다, 알아내다"},{"id":45,"day":2,"word":"decide","meaning":"[동] 결정하다, 결심하다"},{"id":46,"day":2,"word":"benefit","meaning":"[명] 이익, 혜택, [동] 도움이 되다"},{"id":47,"day":2,"word":"affect","meaning":"[동] 영향을 미치다"},{"id":48,"day":2,"word":"level","meaning":"[명] 수준, 정도, 수평, [형] 수평의"},{"id":49,"day":2,"word":"chemistry","meaning":"[명] 화학"},{"id":50,"day":2,"word":"immediate","meaning":"[형] 즉각적인, 시급한, 직접적인"},{"id":51,"day":2,"word":"thus","meaning":"[부] 그러므로, 따라서"},{"id":52,"day":2,"word":"proper","meaning":"[형] 적절한, 알맞은"},{"id":53,"day":2,"word":"performance","meaning":"[명] 공연, 성과"},{"id":54,"day":2,"word":"essence","meaning":"[명] 본질, 정수"},{"id":55,"day":2,"word":"economic","meaning":"[형] 경제의, 경제학의"},{"id":56,"day":2,"word":"cell","meaning":"[명] 세포"},{"id":57,"day":2,"word":"focus","meaning":"[동] 집중하다, [명] 초점"},{"id":58,"day":2,"word":"issue","meaning":"[명] 논란거리, 쟁점, 문제"},{"id":59,"day":2,"word":"participate","meaning":"[동] 참여하다, 참가하다(in)"},{"id":60,"day":2,"word":"demand","meaning":"[명] 요구, 수요, [동] 요구하다"},{"id":61,"day":2,"word":"occur","meaning":"[동] 발생하다, 일어나다, (생각이) 떠오르다"},{"id":62,"day":2,"word":"complex","meaning":"[형] 복잡한, [명] 복잡체, 복합 건물"},{"id":63,"day":2,"word":"define","meaning":"[동] 정의하다, 한계 짓다, 한정하다, 규정하다"},{"id":64,"day":2,"word":"proud","meaning":"[형] 자랑스러워하는"},{"id":65,"day":2,"word":"aware","meaning":"[형] 인지하는, 인식하고 있는, 알고 있는"},{"id":66,"day":2,"word":"contact","meaning":"[동] 연락하다, [명] 접촉, 연락"},{"id":67,"day":2,"word":"profession","meaning":"[명] 직업, 직종, 전문직"},{"id":68,"day":2,"word":"detail","meaning":"[명] 세부, 세부사항, [동] 상술하다"},{"id":69,"day":2,"word":"approach","meaning":"[동] 접근하다, [명] 접근"},{"id":70,"day":2,"word":"career","meaning":"[명] 직업, 경력"},{"id":71,"day":2,"word":"package","meaning":"[명] 꾸러미, 포장, 포장된 짐, [동] 포장하다"},{"id":72,"day":2,"word":"disappear","meaning":"[동] 사라지다"},{"id":73,"day":2,"word":"novel","meaning":"[명] 소설"},{"id":74,"day":2,"word":"secure","meaning":"[형] 안전한, 안정된, [동] 안전하게 하다"},{"id":75,"day":2,"word":"fashion","meaning":"[명] 유행, 패션, 방식, [동] 만들어 내다"},{"id":76,"day":2,"word":"despite","meaning":"[전] ~에도 불구하고"},{"id":77,"day":2,"word":"background","meaning":"[명] (그림, 사람, 사건)배경, 배경 지식"},{"id":78,"day":2,"word":"solution","meaning":"[명] 해결, 해결책"},{"id":79,"day":2,"word":"generate","meaning":"[동] 일으키다, 발생시키다"},{"id":80,"day":2,"word":"eventually","meaning":"[부] 결국"},{"id":81,"day":3,"word":"decrease","meaning":"[동] 줄다[감소하다], 줄이다, [명] 감소"},{"id":82,"day":3,"word":"recycle","meaning":"[동] 재활용하다"},{"id":83,"day":3,"word":"desire","meaning":"[명] 욕구, 욕망, [동] 바라다"},{"id":84,"day":3,"word":"balance","meaning":"[명] 균형, 은행 잔고, [동] 균형을 이루다"},{"id":85,"day":3,"word":"negative","meaning":"[형] 부정적인"},{"id":86,"day":3,"word":"follow","meaning":"[동] 따라가다, (규칙을) 따르다"},{"id":87,"day":3,"word":"account","meaning":"[명] 은행 계좌, 이야기, 설명, [동] 설명하다"},{"id":88,"day":3,"word":"publish","meaning":"[동] 발표하다, 출판하다"},{"id":89,"day":3,"word":"occasion","meaning":"[명] 경우, 특별한 일"},{"id":90,"day":3,"word":"replace","meaning":"[동] 대체하다"},{"id":91,"day":3,"word":"constant","meaning":"[형] 일정한, 불변의, [명] (수학에서의) 상수"},{"id":92,"day":3,"word":"expert","meaning":"[명] 전문가"},{"id":93,"day":3,"word":"term","meaning":"[명] 용어, 기간, 학기"},{"id":94,"day":3,"word":"relieve","meaning":"[동] 경감하다, 안도시키다"},{"id":95,"day":3,"word":"describe","meaning":"[동] 묘사하다, 표현하다"},{"id":96,"day":3,"word":"biology","meaning":"[명] 생물학"},{"id":97,"day":3,"word":"due","meaning":"[형] 만기의, ~하기로 되어 있는"},{"id":98,"day":3,"word":"equipment","meaning":"[명] 장치, 장비"},{"id":99,"day":3,"word":"congratulate","meaning":"[동] 축하하다"},{"id":100,"day":3,"word":"birth","meaning":"[명] 탄생"},{"id":101,"day":3,"word":"compose","meaning":"[동] 구성하다, 작곡하다, 작문하다"},{"id":102,"day":3,"word":"genius","meaning":"[명] 천재, 천재성"},{"id":103,"day":3,"word":"reflect","meaning":"[동] 반영하다, 반사하다, 숙고하다"},{"id":104,"day":3,"word":"cause","meaning":"[동] ~의 원인이 되다, 야기하다, [명] 원인"},{"id":105,"day":3,"word":"frequent","meaning":"[형] 빈번한, [동] (장소,모임에) 자주 가다"},{"id":106,"day":3,"word":"factor","meaning":"[명] 요인, 요소"},{"id":107,"day":3,"word":"extreme","meaning":"[형] 극단의, [명] 극단"},{"id":108,"day":3,"word":"tend","meaning":"[동] ~하는 경향이 있다, 돌보다"},{"id":109,"day":3,"word":"politics","meaning":"[명] 정치, 정치학"},{"id":110,"day":3,"word":"insist","meaning":"[동] 주장하다"},{"id":111,"day":3,"word":"extend","meaning":"[동] 연장하다, 넓히다"},{"id":112,"day":3,"word":"lonely","meaning":"[형] 외로운"},{"id":113,"day":3,"word":"habitat","meaning":"[명] 서식지, 주거지"},{"id":114,"day":3,"word":"mental","meaning":"[형] 정신의"},{"id":115,"day":3,"word":"steady","meaning":"[형] 안정된, 한결같은, 꾸준한"},{"id":116,"day":3,"word":"exchange","meaning":"[동] 교환하다"},{"id":117,"day":3,"word":"active","meaning":"[형] 활동적인, 적극적인"},{"id":118,"day":3,"word":"species","meaning":"[명] (생물분류상의) 종"},{"id":119,"day":3,"word":"athletic","meaning":"[형] 운동의, 운동경기의"},{"id":120,"day":3,"word":"dental","meaning":"[형] 치아의"},{"id":121,"day":4,"word":"delight","meaning":"[명] 기쁨, [동] 기쁘게 하다"},{"id":122,"day":4,"word":"confident","meaning":"[형] 자신 있는"},{"id":123,"day":4,"word":"gradually","meaning":"[부] 점차, 서서히"},{"id":124,"day":4,"word":"shadow","meaning":"[명] 그림자, [동] 그늘지게 하다"},{"id":125,"day":4,"word":"access","meaning":"[명] 접근, 이용, [동] 접근하다"},{"id":126,"day":4,"word":"announce","meaning":"[동] 발표하다, 알리다"},{"id":127,"day":4,"word":"allow","meaning":"[동] 허락하다, 인정하다"},{"id":128,"day":4,"word":"firm","meaning":"[형] 확고한, 단단한, [명] 회사"},{"id":129,"day":4,"word":"vary","meaning":"[동] 바꾸다, 변하다, 다르다"},{"id":130,"day":4,"word":"injure","meaning":"[동] 상처를 입히다, 손상시키다"},{"id":131,"day":4,"word":"permit","meaning":"[동] 허용[허락]하다"},{"id":132,"day":4,"word":"response","meaning":"[명] 응답, 반응"},{"id":133,"day":4,"word":"threat","meaning":"[동] 위협, 협박"},{"id":134,"day":4,"word":"electricity","meaning":"[명] 전기"},{"id":135,"day":4,"word":"disabled","meaning":"[형] 장애를 가진, 무능력하게 된"},{"id":136,"day":4,"word":"lack","meaning":"[명] 부족, [동] ~이 부족하다"},{"id":137,"day":4,"word":"signify","meaning":"[동] 의미하다, 중요하다"},{"id":138,"day":4,"word":"concentrate","meaning":"[동] 집중하다"},{"id":139,"day":4,"word":"emphasize","meaning":"[동] 강조하다"},{"id":140,"day":4,"word":"astronomy","meaning":"[명] 천문학"},{"id":141,"day":4,"word":"flood","meaning":"[명] 홍수, [동] 범람시키다"},{"id":142,"day":4,"word":"fuel","meaning":"[명] 연료, [동] 연료를 가하다"},{"id":143,"day":4,"word":"manufacture","meaning":"[동] 제조하다, [명] 제조(업), 제품"},{"id":144,"day":4,"word":"movement","meaning":"[명] 움직임, 운동"},{"id":145,"day":4,"word":"capable","meaning":"[형] ~을 할 수 있는, 유능한"},{"id":146,"day":4,"word":"combine","meaning":"[동] 결합하다, 겸비하다"},{"id":147,"day":4,"word":"gene","meaning":"[명] 유전자"},{"id":148,"day":4,"word":"increase","meaning":"[동] (수량이) 증가하다, [명] 증가, 이자"},{"id":149,"day":4,"word":"victim","meaning":"[명] 희생, 피해자"},{"id":150,"day":4,"word":"pressure","meaning":"[명] 압력, 압박, [동] 압력을 가하다"},{"id":151,"day":4,"word":"accompany","meaning":"[동] 동반[동행]하다, 수반하다"},{"id":152,"day":4,"word":"frustrate","meaning":"[동] 좌절시키다"},{"id":153,"day":4,"word":"construct","meaning":"[동] 건설하다"},{"id":154,"day":4,"word":"dwindle","meaning":"[동] 점점 줄어들다, 저하되다"},{"id":155,"day":4,"word":"commerce","meaning":"[명] 상업, 교역"},{"id":156,"day":4,"word":"entertain","meaning":"[동] 즐겁게 하다"},{"id":157,"day":4,"word":"predict","meaning":"[동] 예언하다, 예측하다"},{"id":158,"day":4,"word":"apologize","meaning":"[동] 사과하다"},{"id":159,"day":4,"word":"sight","meaning":"[명] 시야, 광경, 시력"},{"id":160,"day":4,"word":"quantity","meaning":"[명] 양"},{"id":161,"day":5,"word":"conclude","meaning":"[동] 결론짓다, 끝내다"},{"id":162,"day":5,"word":"donate","meaning":"[동] 기부하다"},{"id":163,"day":5,"word":"personality","meaning":"[명] 개성, 성격, 특색"},{"id":164,"day":5,"word":"struggle","meaning":"[동] 싸우다, 노력하다, [명] 투쟁, 노력"},{"id":165,"day":5,"word":"advantage","meaning":"[명] 유리한 점, 이점"},{"id":166,"day":5,"word":"variety","meaning":"[명] 다양, 다양성"},{"id":167,"day":5,"word":"enable","meaning":"[동] 가능하게 하다"},{"id":168,"day":5,"word":"instruction","meaning":"[명] 지시, 제품 사용 설명서, 가르침"},{"id":169,"day":5,"word":"assume","meaning":"[동] 추정하다, (태도 등을) 취하다"},{"id":170,"day":5,"word":"attempt","meaning":"[동] 시도하다, [명] 시도"},{"id":171,"day":5,"word":"incredible","meaning":"[형] 믿을 수 없는, (믿기 어려울 만큼) 굉장한"},{"id":172,"day":5,"word":"feature","meaning":"[명] 특징, 특집 기사, 얼굴 생김새, [동] ~을 특징으로 하다, 주연하다"},{"id":173,"day":5,"word":"confuse","meaning":"[동] 혼동하다, 혼란시키다"},{"id":174,"day":5,"word":"electronic","meaning":"[형] 전자의"},{"id":175,"day":5,"word":"absorb","meaning":"[동] 흡수하다, (사람, 마음을) 열중시키다"},{"id":176,"day":5,"word":"indicate","meaning":"[동] 가리키다, 나타내다"},{"id":177,"day":5,"word":"analyze","meaning":"[동] 분석하다"},{"id":178,"day":5,"word":"stock","meaning":"[명] 재고품, 저장, 가축, [동] 저장하다, (물품을) 들여놓다"},{"id":179,"day":5,"word":"resident","meaning":"[명] 거주자"},{"id":180,"day":5,"word":"labor","meaning":"[명] 노동, 산고, [동] 노동하다"},{"id":181,"day":5,"word":"remark","meaning":"[명] 의견, 주목, [동] 의견을 말하다, ~에 주목하다"},{"id":182,"day":5,"word":"moral","meaning":"[형] 도덕적인"},{"id":183,"day":5,"word":"embarrassed","meaning":"[형] 당황한"},{"id":184,"day":5,"word":"claim","meaning":"[동] 주장하다, [명] 요구, 주장"},{"id":185,"day":5,"word":"reasonable","meaning":"[형] 논리적인, 분별력 있는"},{"id":186,"day":5,"word":"interrupt","meaning":"[동] 방해하다, 중단하다"},{"id":187,"day":5,"word":"discount","meaning":"[명] 할인, [동] 할인하다"},{"id":188,"day":5,"word":"creature","meaning":"[명] 생물, 피조물"},{"id":189,"day":5,"word":"heal","meaning":"[동] 치료하다, 낫게 하다"},{"id":190,"day":5,"word":"establish","meaning":"[동] 설립하다, 확립하다, 제정하다"},{"id":191,"day":5,"word":"revolution","meaning":"[명] 혁명, 갑작스러운 변화, 회전"},{"id":192,"day":5,"word":"criticize","meaning":"[동] 비난하다"},{"id":193,"day":5,"word":"convince","meaning":"[동] 확신시키다, 납득시키다"},{"id":194,"day":5,"word":"efficient","meaning":"[형] 효율적인, 유능한"},{"id":195,"day":5,"word":"stranger","meaning":"[명] 낯선 사람, 문외한"},{"id":196,"day":5,"word":"tide","meaning":"[명] 조수, 흐름"},{"id":197,"day":5,"word":"obtain","meaning":"[동] 획득하다, 통용되다, 행해지다"},{"id":198,"day":5,"word":"assist","meaning":"[동] 도움을 주다"},{"id":199,"day":5,"word":"disaster","meaning":"[명] 재앙, 재난, 재해"},{"id":200,"day":5,"word":"terrific","meaning":"[형] 굉장한, 훌륭한"},{"id":201,"day":6,"word":"specific","meaning":"구체적인, 특정한"},{"id":202,"day":6,"word":"react","meaning":"반응하다, 반작용하다"},{"id":203,"day":6,"word":"independent","meaning":"독립적인"},{"id":204,"day":6,"word":"theory","meaning":"이론"},{"id":205,"day":6,"word":"qualify","meaning":"자격을 얻다"},{"id":206,"day":6,"word":"consider","meaning":"숙고하다, 고려하다"},{"id":207,"day":6,"word":"recall","meaning":"상기하다, 철회하다, 회수하다; 상기, 철회"},{"id":208,"day":6,"word":"risk","meaning":"위험; 위험을 감수하다"},{"id":209,"day":6,"word":"treatment","meaning":"취급, 대우, 치료(법)"},{"id":210,"day":6,"word":"engage","meaning":"관여하다, 약속하다, 약혼하다"},{"id":211,"day":6,"word":"motivate","meaning":"동기를 부여하다"},{"id":212,"day":6,"word":"clue","meaning":"실마리, 단서"},{"id":213,"day":6,"word":"cancer","meaning":"암, 악성 종양"},{"id":214,"day":6,"word":"elder","meaning":"나이가 위인; 연장자"},{"id":215,"day":6,"word":"depress","meaning":"우울하게 하다, 의기소침(낙담)하게 하다"},{"id":216,"day":6,"word":"fascinate","meaning":"매료시키다, 마음을 빼앗다"},{"id":217,"day":6,"word":"violent","meaning":"난폭한, 폭력적인"},{"id":218,"day":6,"word":"alarm","meaning":"놀람, 경보"},{"id":219,"day":6,"word":"edge","meaning":"가장자리, 날카로움, 우위"},{"id":220,"day":6,"word":"deserve","meaning":"~을 받을 만하다(가치가 있다)"},{"id":221,"day":6,"word":"route","meaning":"길, 통로, 항로"},{"id":222,"day":6,"word":"psychology","meaning":"심리, 심리학"},{"id":223,"day":6,"word":"passion","meaning":"열정"},{"id":224,"day":6,"word":"import","meaning":"수입하다, 의미하다; 수입"},{"id":225,"day":6,"word":"purchase","meaning":"구매하다; 구매"},{"id":226,"day":6,"word":"conscience","meaning":"양심"},{"id":227,"day":6,"word":"pose","meaning":"자세를 취하다, (문제를) 제기하다; 자세"},{"id":228,"day":6,"word":"length","meaning":"길이"},{"id":229,"day":6,"word":"severe","meaning":"심한, 엄격한"},{"id":230,"day":6,"word":"decade","meaning":"10년, 10년간"},{"id":231,"day":6,"word":"occupy","meaning":"(시간, 장소를) 차지하다, 전념하다"},{"id":232,"day":6,"word":"acquire","meaning":"습득하다"},{"id":233,"day":6,"word":"interact","meaning":"상호 작용하다"},{"id":234,"day":6,"word":"brief","meaning":"간단한; 간단한 보고; 간단히 알리다"},{"id":235,"day":6,"word":"observe","meaning":"관찰하다, ~을 보다, 준수하다"},{"id":236,"day":6,"word":"poetry","meaning":"시, 운문"},{"id":237,"day":6,"word":"salary","meaning":"급료, 봉급"},{"id":238,"day":6,"word":"grain","meaning":"곡물, 낟알"},{"id":239,"day":6,"word":"meaningful","meaning":"의미 있는, 의미심장한"},{"id":240,"day":6,"word":"weed","meaning":"잡초; 잡초를 제거하다"},{"id":241,"day":7,"word":"survival","meaning":"[명] 생존"},{"id":242,"day":7,"word":"comment","meaning":"[명] 논평, 주석, [동] 논평하다"},{"id":243,"day":7,"word":"leap","meaning":"[동] 뛰다, 도약하다, [명] 도약"},{"id":244,"day":7,"word":"survey","meaning":"[동] 둘러보다, 조사하다, [명] 설문 조사"},{"id":245,"day":7,"word":"typical","meaning":"[형] 전형적인, 대표적인"},{"id":246,"day":7,"word":"mere","meaning":"[형] 단지 ~에 불과한"},{"id":247,"day":7,"word":"mechanic","meaning":"[명] 기계공"},{"id":248,"day":7,"word":"mood","meaning":"[명] 분위기, 기분"},{"id":249,"day":7,"word":"approve","meaning":"[동] 승인하다, 찬성하다"},{"id":250,"day":7,"word":"rural","meaning":"[형] 시골의"},{"id":251,"day":7,"word":"finance","meaning":"[명] 재정, 자금, [동] 자금을 조달하다"},{"id":252,"day":7,"word":"seek","meaning":"[동] 찾다, 추구하다"},{"id":253,"day":7,"word":"operation","meaning":"[명] 작업, 운영, 수술"},{"id":254,"day":7,"word":"crime","meaning":"[명] 범죄"},{"id":255,"day":7,"word":"awful","meaning":"[형] 끔찍한, 지독한"},{"id":256,"day":7,"word":"series","meaning":"[명] 연속, 시리즈물"},{"id":257,"day":7,"word":"exhausted","meaning":"[형] 고갈된, 기진맥진한"},{"id":258,"day":7,"word":"absolute","meaning":"[형] 완전한, 절대적인"},{"id":259,"day":7,"word":"surround","meaning":"[동] 둘러싸다"},{"id":260,"day":7,"word":"display","meaning":"[동] 전시하다, 나타내다, [명] 전시"},{"id":261,"day":7,"word":"policy","meaning":"[명] 정책, 수단"},{"id":262,"day":7,"word":"mass","meaning":"[명] 덩어리, 집단"},{"id":263,"day":7,"word":"committee","meaning":"[명] 위원회"},{"id":264,"day":7,"word":"accurate","meaning":"[형] 정확한"},{"id":265,"day":7,"word":"arrange","meaning":"[동] 정리하다, 준비하다"},{"id":266,"day":7,"word":"facility","meaning":"[명] 시설, 편의"},{"id":267,"day":7,"word":"consult","meaning":"[동] 상담하다, 참고하다"},{"id":268,"day":7,"word":"refer","meaning":"[동] 언급하다, 위탁하다"},{"id":269,"day":7,"word":"attach","meaning":"[동] 붙이다, 첨부하다"},{"id":270,"day":7,"word":"recover","meaning":"[동] 회복하다, 되찾다"},{"id":271,"day":7,"word":"reward","meaning":"[명] 보상, [동] 보답하다"},{"id":272,"day":7,"word":"enormous","meaning":"[형] 엄청난, 거대한"},{"id":273,"day":7,"word":"domestic","meaning":"[형] 국내의, 가정의"},{"id":274,"day":7,"word":"wealth","meaning":"[명] 부, 재산"},{"id":275,"day":7,"word":"elementary","meaning":"[형] 초보의, 기초적인"},{"id":276,"day":7,"word":"gap","meaning":"[명] 격차, 틈"},{"id":277,"day":7,"word":"except","meaning":"[전] ~을 제외하고, [동] 제외하다"},{"id":278,"day":7,"word":"journey","meaning":"[명] 여행"},{"id":279,"day":7,"word":"plain","meaning":"[형] 평범한, 명백한"},{"id":280,"day":7,"word":"downtown","meaning":"[명] 도심, [형]도심의 [부] 도심지에서"},{"id":281,"day":8,"word":"previous","meaning":"[형] 이전의, 앞의"},{"id":282,"day":8,"word":"produce","meaning":"[동] 생산하다, 제조하다"},{"id":283,"day":8,"word":"remain","meaning":"[동] 여전히 ~이다, 남다"},{"id":284,"day":8,"word":"break","meaning":"[동] 깨다, 고장내다"},{"id":285,"day":8,"word":"slight","meaning":"[형] 약간의, 경미한"},{"id":286,"day":8,"word":"include","meaning":"[동] 포함하다"},{"id":287,"day":8,"word":"delay","meaning":"[동] 연기하다, 미루다, [명] 지연"},{"id":288,"day":8,"word":"file","meaning":"[명] 서류철, [동] 파일에 철하다, 제기하다"},{"id":289,"day":8,"word":"ethic","meaning":"[명] 윤리"},{"id":290,"day":8,"word":"instant","meaning":"[형] 즉각의, 즉석의, [명] 순간"},{"id":291,"day":8,"word":"reveal","meaning":"[동] 폭로하다, 드러내다"},{"id":292,"day":8,"word":"breed","meaning":"[동] 낳다, 양육하다"},{"id":293,"day":8,"word":"leisure","meaning":"[명] 여가, [형] 한가한"},{"id":294,"day":8,"word":"urban","meaning":"[형] 도시의"},{"id":295,"day":8,"word":"witness","meaning":"[명] 목격자, [동] 목격하다"},{"id":296,"day":8,"word":"admit","meaning":"[동] 인정하다, 입학을 허가하다"},{"id":297,"day":8,"word":"muscle","meaning":"[명] 근육, 힘"},{"id":298,"day":8,"word":"device","meaning":"[명] 장치, 고안, 방책"},{"id":299,"day":8,"word":"suppose","meaning":"[동] 추측하다, 가정하다"},{"id":300,"day":8,"word":"owe","meaning":"[동] 빚지고 있다"},{"id":301,"day":8,"word":"intend","meaning":"[동] ~할 작정이다, 의도하다"},{"id":302,"day":8,"word":"aspect","meaning":"[명] 면, 관점"},{"id":303,"day":8,"word":"potential","meaning":"[형] 잠재적인, [명] 잠재력"},{"id":304,"day":8,"word":"award","meaning":"[명] 상, [동] (상 등을) 수여하다"},{"id":305,"day":8,"word":"preserve","meaning":"[동] 보존하다, 보호하다"},{"id":306,"day":8,"word":"spot","meaning":"[명] 장소, 점, [동] 발견하다"},{"id":307,"day":8,"word":"underground","meaning":"[형] 지하의, 비밀의, [명] 지하"},{"id":308,"day":8,"word":"consequence","meaning":"[명] 결과, 중요성"},{"id":309,"day":8,"word":"target","meaning":"[명] 목표, [동] 목표로 삼다"},{"id":310,"day":8,"word":"unless","meaning":"[접] 만약 ~이 아니면"},{"id":311,"day":8,"word":"accomplish","meaning":"[동] 이루다, 성취하다"},{"id":312,"day":8,"word":"adopt","meaning":"[동] 입양하다, 채택하다"},{"id":313,"day":8,"word":"unique","meaning":"[형] 독특한, 유일한"},{"id":314,"day":8,"word":"slip","meaning":"[동] 미끄러지다, 실수하다, [명] 종이 조각"},{"id":315,"day":8,"word":"civilization","meaning":"[명] 문명"},{"id":316,"day":8,"word":"row","meaning":"[명] 열, 줄, [동] 배를 젓다"},{"id":317,"day":8,"word":"horizon","meaning":"[명] 지평선"},{"id":318,"day":8,"word":"atmosphere","meaning":"[명] 대기, 분위기"},{"id":319,"day":8,"word":"label","meaning":"[명] 꼬리표, 상표, [동] 라벨을 붙이다"},{"id":320,"day":8,"word":"decorate","meaning":"[동] 장식하다, ~에게 훈장을 주다"},{"id":321,"day":9,"word":"identify","meaning":"[동] ~임을 확인하다, 식별하다, 동일시하다"},{"id":322,"day":9,"word":"standard","meaning":"[명] 표준, 기준, [형] 기준의, 표준의"},{"id":323,"day":9,"word":"scale","meaning":"[명] 규모, 저울, 비늘"},{"id":324,"day":9,"word":"evident","meaning":"[형] 명백한"},{"id":325,"day":9,"word":"seldom","meaning":"[부] 거의 ~않는"},{"id":326,"day":9,"word":"secretary","meaning":"[명] 비서, 장관"},{"id":327,"day":9,"word":"basis","meaning":"[명] 원리, 기초"},{"id":328,"day":9,"word":"automatic","meaning":"[형] 자동적인, 기계적인"},{"id":329,"day":9,"word":"region","meaning":"[명] 지역"},{"id":330,"day":9,"word":"rise","meaning":"[동] 일어나다, 오르다, [명] 상승"},{"id":331,"day":9,"word":"addict","meaning":"[동] 중독시키다, [명] 중독자"},{"id":332,"day":9,"word":"disappoint","meaning":"[동] 실망시키다"},{"id":333,"day":9,"word":"artificial","meaning":"[형] 인공적인, 인조의"},{"id":334,"day":9,"word":"possess","meaning":"[동] 소유하다, ~의 마음을 사로잡다"},{"id":335,"day":9,"word":"substance","meaning":"[명] 물질, 본질, 실체"},{"id":336,"day":9,"word":"realistic","meaning":"[형] 현실적인, 현실주의의"},{"id":337,"day":9,"word":"encounter","meaning":"[동] (우연히) 만나다, [명] 마주침"},{"id":338,"day":9,"word":"differ","meaning":"[동] 다르다, 의견을 달리하다"},{"id":339,"day":9,"word":"principle","meaning":"[명] 원칙, 원리"},{"id":340,"day":9,"word":"memorize","meaning":"[동] 기억하다"},{"id":341,"day":9,"word":"physics","meaning":"[명] 물리학"},{"id":342,"day":9,"word":"evaluate","meaning":"[동] 평가하다"},{"id":343,"day":9,"word":"tremendous","meaning":"[형] 굉장한, 무시무시한"},{"id":344,"day":9,"word":"application","meaning":"[명] 적용, 신청"},{"id":345,"day":9,"word":"vote","meaning":"[명] 투표, [동] 투표하다"},{"id":346,"day":9,"word":"spread","meaning":"[명] 퍼짐, 확산, [동] 펼치다, 퍼지다"},{"id":347,"day":9,"word":"impact","meaning":"[명] 충격, 영향, [동] 충격을 주다"},{"id":348,"day":9,"word":"cooperate","meaning":"[동] 협력하다"},{"id":349,"day":9,"word":"emit","meaning":"[동] (빛, 열, 소리 등을)방출하다"},{"id":350,"day":9,"word":"request","meaning":"[명] 요청, [동] 요청하다"},{"id":351,"day":9,"word":"guarantee","meaning":"[동] 보장하다, [명] 보증"},{"id":352,"day":9,"word":"resist","meaning":"[동] 저항하다"},{"id":353,"day":9,"word":"fulfill","meaning":"[동] 달성하다, 이행하다"},{"id":354,"day":9,"word":"stink","meaning":"[동] 역겹다, 악취를 풍기다"},{"id":355,"day":9,"word":"grant","meaning":"[동] 수여하다, 승인하다"},{"id":356,"day":9,"word":"rely","meaning":"[동] 의지하다, 믿다"},{"id":357,"day":9,"word":"permanent","meaning":"[형] 영원한, 영구적인"},{"id":358,"day":9,"word":"emergency","meaning":"[명] 비상 사태"},{"id":359,"day":9,"word":"rid","meaning":"[동] 제거하다"},{"id":360,"day":9,"word":"theme","meaning":"[명] 주제, 화제"},{"id":361,"day":10,"word":"hesitate","meaning":"[동] 주저하다, 망설이다"},{"id":362,"day":10,"word":"location","meaning":"[명] 위치, 장소"},{"id":363,"day":10,"word":"restrict","meaning":"[동] 제한하다, 한정하다"},{"id":364,"day":10,"word":"organism","meaning":"[명] 유기체, 생물"},{"id":365,"day":10,"word":"resolve","meaning":"[동] 해결하다, 결심하다"},{"id":366,"day":10,"word":"offer","meaning":"[동] 제공하다, 제안하다"},{"id":367,"day":10,"word":"distribute","meaning":"[동] 분배하다, 분포시키다"},{"id":368,"day":10,"word":"rainforest","meaning":"[명] 열대우림"},{"id":369,"day":10,"word":"circumstance","meaning":"[명] 상황, 환경"},{"id":370,"day":10,"word":"interpret","meaning":"[동] 해석하다, 통역하다"},{"id":371,"day":10,"word":"suitable","meaning":"[형] 적절한, 적합한"},{"id":372,"day":10,"word":"curve","meaning":"[명] 곡선, 속임수"},{"id":373,"day":10,"word":"annoy","meaning":"[동] 괴롭히다, 귀찮게 하다"},{"id":374,"day":10,"word":"frighten","meaning":"[동] 겁먹게 하다"},{"id":375,"day":10,"word":"estimate","meaning":"[동] 평가하다, [명] 견적, 평가"},{"id":376,"day":10,"word":"refuse","meaning":"[동] 거절하다"},{"id":377,"day":10,"word":"adventure","meaning":"[명] 모험, [동] 위험에 빠뜨리다"},{"id":378,"day":10,"word":"entrance","meaning":"[명] 입구, 입장"},{"id":379,"day":10,"word":"persuade","meaning":"[동] 설득하다"},{"id":380,"day":10,"word":"perceive","meaning":"[동] 인지하다, 인식하다"},{"id":381,"day":10,"word":"recite","meaning":"[동] 암송하다"},{"id":382,"day":10,"word":"gather","meaning":"[동] 모으다"},{"id":383,"day":10,"word":"cabin","meaning":"[명] 객실, 선실, 오두막집"},{"id":384,"day":10,"word":"gear","meaning":"[명] 장비, 기어, [동] 맞게 조정하다"},{"id":385,"day":10,"word":"ray","meaning":"[명] 광선"},{"id":386,"day":10,"word":"release","meaning":"[동] 놓아주다, 방출하다, [명] 석방, 발표"},{"id":387,"day":10,"word":"rank","meaning":"[명] 지위, 계급, [동] 매기다, (등급을)차지하다"},{"id":388,"day":10,"word":"symphony","meaning":"[명] 교향곡"},{"id":389,"day":10,"word":"envy","meaning":"[동] 부러워하다, [명] 부러움"},{"id":390,"day":10,"word":"corporate","meaning":"[형] 회사의, 법인의"},{"id":391,"day":10,"word":"alternative","meaning":"[명] 대안, [형] 대안의"},{"id":392,"day":10,"word":"retire","meaning":"[동] 은퇴하다"},{"id":393,"day":10,"word":"appeal","meaning":"[동] 호소하다, 관심을 끌다, [명] 호소, 항의"},{"id":394,"day":10,"word":"identical","meaning":"[형] 동일한, 일란성의"},{"id":395,"day":10,"word":"investment","meaning":"[명] 투자"},{"id":396,"day":10,"word":"autograph","meaning":"[명] 서명, [동] 서명하다"},{"id":397,"day":10,"word":"slave","meaning":"[명] 노예"},{"id":398,"day":10,"word":"harm","meaning":"[명] 손해, 손상, [동] 해치다"},{"id":399,"day":10,"word":"authority","meaning":"[명] 권위, 당국"},{"id":400,"day":10,"word":"innocence","meaning":"[명] 결백, 무죄, 순진"},{"id":401,"day":11,"word":"infant","meaning":"[명] 유아, 유치원생"},{"id":402,"day":11,"word":"calculate","meaning":"[동] 계산하다"},{"id":403,"day":11,"word":"charity","meaning":"[명] 자선 단체"},{"id":404,"day":11,"word":"receive","meaning":"[동] 받다"},{"id":405,"day":11,"word":"whereas","meaning":"[접] 그런데, ~에 반해서"},{"id":406,"day":11,"word":"board","meaning":"[명] 판자, 게시판[동] 타다"},{"id":407,"day":11,"word":"ignorant","meaning":"[형] 무지한, 무식한"},{"id":408,"day":11,"word":"depend","meaning":"[동] 의존하다, ~에 달려 있다"},{"id":409,"day":11,"word":"pure","meaning":"[형] 순수한, 깨끗한"},{"id":410,"day":11,"word":"extinct","meaning":"[형] 멸종된, 사라진"},{"id":411,"day":11,"word":"household","meaning":"[명] 가정[형] 가정의"},{"id":412,"day":11,"word":"chapter","meaning":"[명] (책의) 장, 시기, 사제단"},{"id":413,"day":11,"word":"refund","meaning":"[동] 환불하다[명] 환불금"},{"id":414,"day":11,"word":"institute","meaning":"[명] 기관, 협회"},{"id":415,"day":11,"word":"lately","meaning":"[부] 최근에"},{"id":416,"day":11,"word":"accept","meaning":"[동] 받아들이다"},{"id":417,"day":11,"word":"ashamed","meaning":"[형] 부끄러워하는"},{"id":418,"day":11,"word":"dense","meaning":"[형] 밀집한, (앞이 안 보이게) 짙은"},{"id":419,"day":11,"word":"rescue","meaning":"[동] 구출하다[명] 구출"},{"id":420,"day":11,"word":"continue","meaning":"[동] 계속하다"},{"id":421,"day":11,"word":"destination","meaning":"[명] 목적지"},{"id":422,"day":11,"word":"expand","meaning":"[동] 확장되다, 확장시키다"},{"id":423,"day":11,"word":"evolution","meaning":"[명] 진화, 발전"},{"id":424,"day":11,"word":"hire","meaning":"[동] 고용하다"},{"id":425,"day":11,"word":"isolate","meaning":"[동] 고립시키다, 격리시키다"},{"id":426,"day":11,"word":"gravity","meaning":"[명] 중력"},{"id":427,"day":11,"word":"genuine","meaning":"[형] 진짜의, 진실된"},{"id":428,"day":11,"word":"statue","meaning":"[명] 조각상"},{"id":429,"day":11,"word":"compete","meaning":"[동] 경쟁하다"},{"id":430,"day":11,"word":"military","meaning":"[형] 군의, 군사의[명] 군, 군대"},{"id":431,"day":11,"word":"logic","meaning":"[명] 논리, 논리학"},{"id":432,"day":11,"word":"commit","meaning":"[동] (죄 등을) 저지르다, 약속하다, 헌신하다"},{"id":433,"day":11,"word":"sensible","meaning":"[형] 합리적인, 현명한"},{"id":434,"day":11,"word":"sum","meaning":"[명] 금액, 합계"},{"id":435,"day":11,"word":"conserve","meaning":"[동] 보존하다, 보호하다"},{"id":436,"day":11,"word":"swing","meaning":"[동] 흔들다, 휘두르다"},{"id":437,"day":11,"word":"marriage","meaning":"[명] 결혼, 결혼 생활"},{"id":438,"day":11,"word":"reproduce","meaning":"[동] 번식하다, 재생하다, 복제하다"},{"id":439,"day":11,"word":"tone","meaning":"[명] 음조, 어조, 억양 [동] 조화하다, 탄력있게 만들다"},{"id":440,"day":11,"word":"concept","meaning":"[명] 개념"},{"id":441,"day":12,"word":"invitation","meaning":"[명] 초대"},{"id":442,"day":12,"word":"precise","meaning":"[형] 정확한, 정밀한"},{"id":443,"day":12,"word":"formal","meaning":"[형] 공식적인, 격식을 차린"},{"id":444,"day":12,"word":"particle","meaning":"[명] 작은 조각, 입자"},{"id":445,"day":12,"word":"cancel","meaning":"[동] 취소하다"},{"id":446,"day":12,"word":"return","meaning":"[동] 돌아가다, 돌려주다[명] 돌아감, 귀향"},{"id":447,"day":12,"word":"departure","meaning":"[명] 출발, 떠남, 일탈"},{"id":448,"day":12,"word":"apparent","meaning":"[형] 명백한"},{"id":449,"day":12,"word":"visual","meaning":"[형] 눈에 보이는, 시각의"},{"id":450,"day":12,"word":"agriculture","meaning":"[명] 농업"},{"id":451,"day":12,"word":"rite","meaning":"[명] 의식, 의례"},{"id":452,"day":12,"word":"poverty","meaning":"[명] 가난"},{"id":453,"day":12,"word":"sculpture","meaning":"[명] 조각상"},{"id":454,"day":12,"word":"descend","meaning":"[동] 내려가다, 내려오다"},{"id":455,"day":12,"word":"leak","meaning":"[동] 새다[명] 새는 구멍"},{"id":456,"day":12,"word":"portion","meaning":"[명] 부분, 1인분"},{"id":457,"day":12,"word":"companion","meaning":"[명] 친구, 동료"},{"id":458,"day":12,"word":"diligent","meaning":"[형]근면한"},{"id":459,"day":12,"word":"distinct","meaning":"[형] 뚜렷한, 다른"},{"id":460,"day":12,"word":"component","meaning":"[명] 구성 요소[형] 구성하는"},{"id":461,"day":12,"word":"current","meaning":"[형] 현재의, 지금의"},{"id":462,"day":12,"word":"universal","meaning":"[형] 보편적인, 전 세계의"},{"id":463,"day":12,"word":"trap","meaning":"[명] 덫[동] 가두다"},{"id":464,"day":12,"word":"eager","meaning":"[형] 갈망하는"},{"id":465,"day":12,"word":"legal","meaning":"[형] 법률의, 합법적인"},{"id":466,"day":12,"word":"demonstrate","meaning":"[동] 입증하다, 시위하다, 설명하다"},{"id":467,"day":12,"word":"democracy","meaning":"[명] 민주주의"},{"id":468,"day":12,"word":"mature","meaning":"[형] 성숙한[동] 성숙하다"},{"id":469,"day":12,"word":"brilliant","meaning":"[형] 빛나는, 훌륭한"},{"id":470,"day":12,"word":"annual","meaning":"[형] 연간의, 해마다의"},{"id":471,"day":12,"word":"faith","meaning":"[명] 믿음, 신념"},{"id":472,"day":12,"word":"spare","meaning":"[동] (시간, 돈을) 할애하다, (고생을) 면하게 하다[형] 여분의"},{"id":473,"day":12,"word":"transfer","meaning":"[동] 이동하다, 옮기다, 환승하다[명] 이[동] 환승"},{"id":474,"day":12,"word":"refrigerator","meaning":"[명] 냉장고"},{"id":475,"day":12,"word":"oppose","meaning":"[동] 반대하다"},{"id":476,"day":12,"word":"desperate","meaning":"[형] 절망적인, 필사적인"},{"id":477,"day":12,"word":"remote","meaning":"[형] 멀리 떨어진, 원격 조정의"},{"id":478,"day":12,"word":"offend","meaning":"[동] 불쾌하게 하다"},{"id":479,"day":12,"word":"awake","meaning":"[형] 깨어있는"},{"id":480,"day":12,"word":"aim","meaning":"[동] 목표로 하다, 겨누다[명] 목표"},{"id":481,"day":13,"word":"option","meaning":"[명] 선택, 선택권"},{"id":482,"day":13,"word":"insight","meaning":"[명] 통찰력"},{"id":483,"day":13,"word":"achieve","meaning":"[동] 이루다, 성취하다"},{"id":484,"day":13,"word":"civil","meaning":"[형] 시민의, 민간의"},{"id":485,"day":13,"word":"pause","meaning":"[동] 잠시 멈추다[명] 중단"},{"id":486,"day":13,"word":"prove","meaning":"[동] 입증하다"},{"id":487,"day":13,"word":"lecture","meaning":"[명] 강의[동] 강의를 하다"},{"id":488,"day":13,"word":"minor","meaning":"[형] 사소한, [명] 미성년자[동] 부전공하다"},{"id":489,"day":13,"word":"duty","meaning":"[명] 의무, 관세"},{"id":490,"day":13,"word":"vigor","meaning":"[명] 활력"},{"id":491,"day":13,"word":"organize","meaning":"[동] 조직하다, 구성하다"},{"id":492,"day":13,"word":"chief","meaning":"[명] 우두머리[형] 우두머리의, 주요한"},{"id":493,"day":13,"word":"complicated","meaning":"[형] 복잡한"},{"id":494,"day":13,"word":"digest","meaning":"[동] 소화하다[명] 요약"},{"id":495,"day":13,"word":"shortage","meaning":"[명] 부족, 결함"},{"id":496,"day":13,"word":"laboratory","meaning":"[명] 실험실[형] 실험의"},{"id":497,"day":13,"word":"arrive","meaning":"[동] 도착하다"},{"id":498,"day":13,"word":"generous","meaning":"[형] 관대한, 넉넉한"},{"id":499,"day":13,"word":"laundry","meaning":"[명] 세탁물"},{"id":500,"day":13,"word":"transform","meaning":"[동] 변형시키다, 변환하다"},{"id":501,"day":13,"word":"discipline","meaning":"[명] 규율, 훈련[동] 훈육하다, 징계하다"},{"id":502,"day":13,"word":"forbid","meaning":"[동] 금지하다"},{"id":503,"day":13,"word":"ultimate","meaning":"[형] 궁극적인, 최후의"},{"id":504,"day":13,"word":"thrive","meaning":"[동] 번영하다, 발전하다"},{"id":505,"day":13,"word":"conversation","meaning":"[명] 대화, 회담"},{"id":506,"day":13,"word":"bet","meaning":"[동] 돈을 걸다, 내기를 하다[명] 내기"},{"id":507,"day":13,"word":"royal","meaning":"[형] 왕족의, 왕의"},{"id":508,"day":13,"word":"ruin","meaning":"[동] 망치다, 파멸시키다[명] 파멸, 파산"},{"id":509,"day":13,"word":"worship","meaning":"[동] 숭배하다, 예배하다[명] 숭배, 예배"},{"id":510,"day":13,"word":"evil","meaning":"[형] 사악한[명] 악"},{"id":511,"day":13,"word":"scarce","meaning":"[형] 부족한, 드문"},{"id":512,"day":13,"word":"afterward","meaning":"[부] 나중에, 그 후에"},{"id":513,"day":13,"word":"client","meaning":"[명] 고객, 의뢰인"},{"id":514,"day":13,"word":"insure","meaning":"[동] 보험을 계약하다, 안전하게 하다"},{"id":515,"day":13,"word":"fancy","meaning":"[명] 공상[형] 화려한[동] 공상하다"},{"id":516,"day":13,"word":"surgery","meaning":"[명] 외과 수술"},{"id":517,"day":13,"word":"assign","meaning":"[동] 할당하다, 지정하다"},{"id":518,"day":13,"word":"regulate","meaning":"[동] 규제하다, 조절하다"},{"id":519,"day":13,"word":"shelf","meaning":"[명] 선반"},{"id":520,"day":13,"word":"utility","meaning":"[명] 공익사업, 유용성"},{"id":521,"day":14,"word":"necessity","meaning":"[명] 필요, 필수, 필수품"},{"id":522,"day":14,"word":"yield","meaning":"[동] 생산하다, 굴복하다, 양도하다[명] 수확(물)"},{"id":523,"day":14,"word":"decline","meaning":"[명] 감소, 쇠퇴[동] 감소하다, 쇠퇴하다, 거절하다"},{"id":524,"day":14,"word":"coincidence","meaning":"[명] 우연의 일치, 동시에 일어난 사건"},{"id":525,"day":14,"word":"aside","meaning":"[부] 한쪽으로, 제쳐 두고"},{"id":526,"day":14,"word":"contemporary","meaning":"[형] 현대의, 동시대의"},{"id":527,"day":14,"word":"bless","meaning":"[동] 축복하다, 감사하다"},{"id":528,"day":14,"word":"explain","meaning":"[동] 설명하다"},{"id":529,"day":14,"word":"prior","meaning":"[형] 이전의, 우선하는"},{"id":530,"day":14,"word":"tolerate","meaning":"[동] 참다, 용인하다"},{"id":531,"day":14,"word":"measure","meaning":"[동] 측정하다[명] 측정, 수단"},{"id":532,"day":14,"word":"abstract","meaning":"[형] 추상적인[명] 추상, 개요"},{"id":533,"day":14,"word":"cottage","meaning":"[명] 오두막집"},{"id":534,"day":14,"word":"correct","meaning":"[형] 올바른, 정확한[동] 바로잡다, 정정하다"},{"id":535,"day":14,"word":"confirm","meaning":"[동] 확인하다, 입증하다, (결심을) 굳게 하다"},{"id":536,"day":14,"word":"imitate","meaning":"[동] 모방하다"},{"id":537,"day":14,"word":"prey","meaning":"[명] 먹이, 희생자"},{"id":538,"day":14,"word":"defeat","meaning":"[동] 패배시키다[명] 패배"},{"id":539,"day":14,"word":"illustrate","meaning":"[동] 설명하다, (분명히) 보여주다, 삽화를 넣다"},{"id":540,"day":14,"word":"fuse","meaning":"[명] 퓨즈, 도화선[동] 융합하다"},{"id":541,"day":14,"word":"pupil","meaning":"[명] 학생, 눈동자"},{"id":542,"day":14,"word":"intellect","meaning":"[명] 지성"},{"id":543,"day":14,"word":"spice","meaning":"[명] 향신료, 양념"},{"id":544,"day":14,"word":"tempt","meaning":"[동] 유혹하다 (관심을) 끌다"},{"id":545,"day":14,"word":"inspire","meaning":"[동] 영감을 주다, 고무시키다, 격려하다"},{"id":546,"day":14,"word":"dine","meaning":"[동] 식사하다, 만찬을 대접하다"},{"id":547,"day":14,"word":"literally","meaning":"[부] 문자 그대로"},{"id":548,"day":14,"word":"appropriate","meaning":"[형] 적절한"},{"id":549,"day":14,"word":"resort","meaning":"[명] 휴양지, 의지[동] 의지하다, 자주 가다"},{"id":550,"day":14,"word":"grab","meaning":"[동] 움켜쥐다[명] 움켜쥠"},{"id":551,"day":14,"word":"propose","meaning":"[동] 제안하다, 청혼하다"},{"id":552,"day":14,"word":"wreck","meaning":"[명] 난파선, 사고[동] 난파시키다"},{"id":553,"day":14,"word":"document","meaning":"[명] 문서, 서류[동] 기록하다"},{"id":554,"day":14,"word":"suspect","meaning":"[동] 의심하다[명] 용의자"},{"id":555,"day":14,"word":"alien","meaning":"[형] 외국의, 이질적인[명] 외국인, 외계인"},{"id":556,"day":14,"word":"prohibit","meaning":"[동] 금지하다"},{"id":557,"day":14,"word":"install","meaning":"[동] 설치하다"},{"id":558,"day":14,"word":"triumph","meaning":"[명] 승리[동] 승리하다"},{"id":559,"day":14,"word":"scholarship","meaning":"[명] 장학금, 학문"},{"id":560,"day":14,"word":"execute","meaning":"[동] 실행하다, 처형하다"},{"id":561,"day":15,"word":"ensure","meaning":"[동] 반드시 ~하게 하다, 보장하다, 확실하게 하다"},{"id":562,"day":15,"word":"receipt","meaning":"[명] 영수증"},{"id":563,"day":15,"word":"defect","meaning":"[명] 결점, 결함[동] (국가•당 등을) 버리다"},{"id":564,"day":15,"word":"trait","meaning":"[명] 특징, 특성"},{"id":565,"day":15,"word":"modest","meaning":"[형] 겸손한, 미천한, 알맞은"},{"id":566,"day":15,"word":"virtual","meaning":"[형] 실제의, 가상의, 사실상의"},{"id":567,"day":15,"word":"compare","meaning":"[동] 비교하다, 비유하다"},{"id":568,"day":15,"word":"address","meaning":"[명] 주소, 연설, 인사말[동] 연설하다, 접근하다"},{"id":569,"day":15,"word":"inner","meaning":"[형] 안쪽의, 내적인, 내부의"},{"id":570,"day":15,"word":"contrary","meaning":"[형] 반대의, 불리한[명] 정반대, 반대의 것"},{"id":571,"day":15,"word":"split","meaning":"[동] 나뉘다, 분열되다, 찢다, 쪼개다[명] 틈, 분열"},{"id":572,"day":15,"word":"supervise","meaning":"[동] 감독하다, 관리하다, 통제하다"},{"id":573,"day":15,"word":"inhabit","meaning":"[동] ~에 살다, 거주하다"},{"id":574,"day":15,"word":"appear","meaning":"[동] 나타나다, ~인 것 같다"},{"id":575,"day":15,"word":"commute","meaning":"[동] 통근하다[명] 통근(거리)"},{"id":576,"day":15,"word":"earthquake","meaning":"[명] 지진, (사회•정치적) 대변동"},{"id":577,"day":15,"word":"enroll","meaning":"[동] 등록하다, 입학하다"},{"id":578,"day":15,"word":"debate","meaning":"[동] 논쟁하다, 토론하다[명] 논쟁, 토론"},{"id":579,"day":15,"word":"abandon","meaning":"[동] 버리다, 포기하다"},{"id":580,"day":15,"word":"conquer","meaning":"[동] 정복하다, 이기다, 극복하다"},{"id":581,"day":15,"word":"nevertheless","meaning":"[부] 그럼에도 불구하고"},{"id":582,"day":15,"word":"seal","meaning":"[동] 봉인하다[명] 봉인, 도장, 바다표범"},{"id":583,"day":15,"word":"greed","meaning":"[명] 탐욕, 식탐"},{"id":584,"day":15,"word":"contract","meaning":"[명] 계약, 계약서[동] 계약하다, 수축하다"},{"id":585,"day":15,"word":"nutrition","meaning":"[명] 영양"},{"id":586,"day":15,"word":"retail","meaning":"[명] 소매[동] 소매하다[부] 소매로"},{"id":587,"day":15,"word":"prejudice","meaning":"[명] 편견, 선입관[동] 편견을 갖게 하다"},{"id":588,"day":15,"word":"register","meaning":"[동] 등록하다, 기재하다[명] 등록부"},{"id":589,"day":15,"word":"agency","meaning":"[명] 기관, 대행사, 대리점"},{"id":590,"day":15,"word":"nurture","meaning":"[동] 양육하다, 양성하다, 교육하다[명] 교육, 양육"},{"id":591,"day":15,"word":"priest","meaning":"[명] 성직자"},{"id":592,"day":15,"word":"elegant","meaning":"[형] 우아한, 고상한"},{"id":593,"day":15,"word":"impose","meaning":"[동] 부과하다, 강요하다"},{"id":594,"day":15,"word":"arise","meaning":"[동] 발생하다, 일어나다, 생겨나다"},{"id":595,"day":15,"word":"modify","meaning":"[동] 수정하다, 변형하다"},{"id":596,"day":15,"word":"masterpiece","meaning":"[명] 대표작, 대작, 명작"},{"id":597,"day":15,"word":"harsh","meaning":"[형] 가혹한, 거친"},{"id":598,"day":15,"word":"drought","meaning":"[명] 가뭄"},{"id":599,"day":15,"word":"criteria","meaning":"[형] 기준, 표준 (criterion의 복수형)"},{"id":600,"day":15,"word":"extraordinary","meaning":"[형] 비범한, 기이한, 놀라운"},{"id":601,"day":16,"word":"dim","meaning":"[형] 희미한, 어둑한 [동] 어둑하게 하다"},{"id":602,"day":16,"word":"general","meaning":"[형] 일반적인, 전반적인 [명] 장군"},{"id":603,"day":16,"word":"scream","meaning":"[동] 비명을 지르다 [명] 비명"},{"id":604,"day":16,"word":"spill","meaning":"[동] 흘리다, 쏟다"},{"id":605,"day":16,"word":"glare","meaning":"[동] 노려보다, 반짝 반짝 빛나다 [명] 노려봄, 눈부신 빛"},{"id":606,"day":16,"word":"swallow","meaning":"[명] 삼킴, 제비 [동] 삼키다"},{"id":607,"day":16,"word":"usual","meaning":"[형] 늘 하는, 흔히 있는"},{"id":608,"day":16,"word":"routine","meaning":"[명] 틀에 박힌 일 [형] 일상적인, 지루한"},{"id":609,"day":16,"word":"eliminate","meaning":"[동] 제거하다, 삭제하다"},{"id":610,"day":16,"word":"deny","meaning":"[동] 부인하다, 거절하다"},{"id":611,"day":16,"word":"sensitive","meaning":"[형] 민감한, 예민한"},{"id":612,"day":16,"word":"tragic","meaning":"[형] 비극적인"},{"id":613,"day":16,"word":"deprive","meaning":"[동] 빼앗다, 강탈하다"},{"id":614,"day":16,"word":"conscious","meaning":"[형] 의식하는, 의식이 있는"},{"id":615,"day":16,"word":"interfere","meaning":"[동] 간섭하다"},{"id":616,"day":16,"word":"temporary","meaning":"[형] 임시의"},{"id":617,"day":16,"word":"council","meaning":"[명] 의회"},{"id":618,"day":16,"word":"adolescent","meaning":"[명] 청소년 [형] 청소년의"},{"id":619,"day":16,"word":"arctic","meaning":"[형] 북극의"},{"id":620,"day":16,"word":"capture","meaning":"[동] 붇잡다, 점유하다"},{"id":621,"day":16,"word":"dilute","meaning":"[형] 묽은 [동] 묽게 하다, 약화시키다"},{"id":622,"day":16,"word":"associate","meaning":"[동] 연상하다, 어울리다 [명] 동료"},{"id":623,"day":16,"word":"figure","meaning":"[명] 숫자, 인물 [동] 이해하다, 계산하다"},{"id":624,"day":16,"word":"warehouse","meaning":"[명] 창고"},{"id":625,"day":16,"word":"crew","meaning":"[명] 승무원, (특별한 기술의)팀 [동] 승무원으로 일하다"},{"id":626,"day":16,"word":"barrier","meaning":"[명] 장벽, 장애물"},{"id":627,"day":16,"word":"pedestrian","meaning":"[명] 보행자 [형] 보행자의"},{"id":628,"day":16,"word":"glance","meaning":"[동] 흘꿋 보다 [명] 흘끗 봄"},{"id":629,"day":16,"word":"errand","meaning":"[명] 심부름"},{"id":630,"day":16,"word":"irritate","meaning":"[동] 짜증나게 하다, 자극하다"},{"id":631,"day":16,"word":"welfare","meaning":"[명] 복지, 행복"},{"id":632,"day":16,"word":"cruel","meaning":"[형] 잔인한, 비참한"},{"id":633,"day":16,"word":"fold","meaning":"[동] 접다 [명] 주름"},{"id":634,"day":16,"word":"trial","meaning":"[명] 재판, 시험"},{"id":635,"day":16,"word":"tribe","meaning":"[명] 부족"},{"id":636,"day":16,"word":"profound","meaning":"[형] 깊은, 심오한"},{"id":637,"day":16,"word":"tradition","meaning":"[명] 전통"},{"id":638,"day":16,"word":"distinguish","meaning":"[동] 구별하다"},{"id":639,"day":16,"word":"statement","meaning":"[명] 진술, 성명, 진술서"},{"id":640,"day":16,"word":"prevail","meaning":"[동] 만연하다, 우세하다"},{"id":641,"day":17,"word":"widespread","meaning":"[형] 널리 퍼진"},{"id":642,"day":17,"word":"result","meaning":"[명] 결과"},{"id":643,"day":17,"word":"fade","meaning":"[동] 사라지다, (색깔이) 바래다"},{"id":644,"day":17,"word":"progress","meaning":"[명] 진전, 진보[동] 진보하다"},{"id":645,"day":17,"word":"weapon","meaning":"[명] 무기"},{"id":646,"day":17,"word":"drastic","meaning":"[형] 과감한, 격렬한"},{"id":647,"day":17,"word":"reinforcement","meaning":"[명] 병력 증강, 강화"},{"id":648,"day":17,"word":"wonder","meaning":"[동] 궁금해하다, 놀라다[명] 놀라움"},{"id":649,"day":17,"word":"pile","meaning":"[명] 더미[동] 쌓다"},{"id":650,"day":17,"word":"protect","meaning":"[동] 보호하다"},{"id":651,"day":17,"word":"infection","meaning":"[명] 감염"},{"id":652,"day":17,"word":"stiffen","meaning":"[동] 굳어지다"},{"id":653,"day":17,"word":"endanger","meaning":"[동] 위험에 빠뜨리다"},{"id":654,"day":17,"word":"adjust","meaning":"[동] 조절하다, 적응하다"},{"id":655,"day":17,"word":"peer","meaning":"[명] 동료, 또래[동] 자세히 들여다보다"},{"id":656,"day":17,"word":"renew","meaning":"[동] 새롭게 하다, 연장하다"},{"id":657,"day":17,"word":"germ","meaning":"[명] 세균, 싹, 근원"},{"id":658,"day":17,"word":"atom","meaning":"[명] 원자"},{"id":659,"day":17,"word":"realize","meaning":"[동] 깨닫다, 실현하다"},{"id":660,"day":17,"word":"enrich","meaning":"[동] 부유하게 하다"},{"id":661,"day":17,"word":"noble","meaning":"[형] 고결한, 귀족의"},{"id":662,"day":17,"word":"repair","meaning":"[동] 수리하다[명] 수리"},{"id":663,"day":17,"word":"candidate","meaning":"[명] 후보자"},{"id":664,"day":17,"word":"ideal","meaning":"[형] 이상적인[명] 이상"},{"id":665,"day":17,"word":"crop","meaning":"[명] 농작물"},{"id":666,"day":17,"word":"ethnic","meaning":"[형] 민족의"},{"id":667,"day":17,"word":"foretell","meaning":"[동] 예언하다"},{"id":668,"day":17,"word":"wholesale","meaning":"[형] 도매의, 대량의"},{"id":669,"day":17,"word":"debt","meaning":"[명] 부채"},{"id":670,"day":17,"word":"representative","meaning":"[명] 대표자"},{"id":671,"day":17,"word":"shift","meaning":"[동] 바꾸다[명] 변화"},{"id":672,"day":17,"word":"strict","meaning":"[형] 엄격한, 엄밀한"},{"id":673,"day":17,"word":"appliance","meaning":"[명] 가전제품"},{"id":674,"day":17,"word":"furthermore","meaning":"[부] 더욱이, 게다가"},{"id":675,"day":17,"word":"excess","meaning":"[명] 초과, 과다"},{"id":676,"day":17,"word":"command","meaning":"[동] 명령하다, 지휘하다[동] 명령, 지휘"},{"id":677,"day":17,"word":"ecosystem","meaning":"[명] 생태계"},{"id":678,"day":17,"word":"fame","meaning":"[명] 명성"},{"id":679,"day":17,"word":"oral","meaning":"[형] 입의[명] 구술시험"},{"id":680,"day":17,"word":"drift","meaning":"[명] 표류, 일반적인 경향[동] 떠돌다, 방황하다"},{"id":681,"day":18,"word":"outstanding","meaning":"[형] 뛰어난, 눈에 띄는"},{"id":682,"day":18,"word":"mislead","meaning":"[동] 잘못 판단하게 하다"},{"id":683,"day":18,"word":"dedicate","meaning":"[동] (시간, 노력을) 바치다"},{"id":684,"day":18,"word":"avoid","meaning":"[동] 피하다, 방지하다"},{"id":685,"day":18,"word":"initial","meaning":"[형] 초기의, 처음의 [명] 머리글자 (이니셜)"},{"id":686,"day":18,"word":"sink","meaning":"[동] 가라앉다"},{"id":687,"day":18,"word":"beard","meaning":"[명] 턱수염"},{"id":688,"day":18,"word":"haste","meaning":"[명] 서두름"},{"id":689,"day":18,"word":"crush","meaning":"[동] 으스러뜨리다, 빻다"},{"id":690,"day":18,"word":"confront","meaning":"[동] 맞서다, 직면하다"},{"id":691,"day":18,"word":"destiny","meaning":"[명] 운명"},{"id":692,"day":18,"word":"hardship","meaning":"[명] 고난, 고통"},{"id":693,"day":18,"word":"escape","meaning":"[동] 탈출하다, 벗어나다 [명] 탈출, 도피"},{"id":694,"day":18,"word":"valid","meaning":"[형] 타당한, 유효한"},{"id":695,"day":18,"word":"entire","meaning":"[형] 전체의, 완전한 [명] 전부, 전체"},{"id":696,"day":18,"word":"dispose","meaning":"[동] 배치하다, 처리하다"},{"id":697,"day":18,"word":"optimal","meaning":"[형] 최적의"},{"id":698,"day":18,"word":"hydrogen","meaning":"[명] 수소"},{"id":699,"day":18,"word":"thread","meaning":"[명] 실 [동] 실을 꿰다"},{"id":700,"day":18,"word":"dynasty","meaning":"[명] 왕조"},{"id":701,"day":18,"word":"scatter","meaning":"[동] 뿌리다, 흩어지다"},{"id":702,"day":18,"word":"gamble","meaning":"[동] 돈을 걸다, 도박을 하다 [명] 도박"},{"id":703,"day":18,"word":"temper","meaning":"[명] 성질, 기분"},{"id":704,"day":18,"word":"exist","meaning":"[동] 존재하다, 살아가다"},{"id":705,"day":18,"word":"undoubtedly","meaning":"[부] 의심할 여지없이, 확실히"},{"id":706,"day":18,"word":"raft","meaning":"[명] 뗏목, 비닐보트"},{"id":707,"day":18,"word":"minimal","meaning":"[형] 최소의, 아주 적은"},{"id":708,"day":18,"word":"soak","meaning":"[동] 흠뻑 적시다"},{"id":709,"day":18,"word":"craft","meaning":"[명] 공예, 기술 [동] 공들여 만들다"},{"id":710,"day":18,"word":"combat","meaning":"[명] 전투 [동] 싸우다"},{"id":711,"day":18,"word":"cease","meaning":"[동] 중단하다"},{"id":712,"day":18,"word":"ceiling","meaning":"[명] 천장, 최고 한도"},{"id":713,"day":18,"word":"unify","meaning":"[동] 통합하다, 통일하다"},{"id":714,"day":18,"word":"perspective","meaning":"[명] 견해, 관점"},{"id":715,"day":18,"word":"doom","meaning":"[명] 나쁜 운명 [동] 운명 짓다"},{"id":716,"day":18,"word":"bump","meaning":"[동] 부딫치다"},{"id":717,"day":18,"word":"primary","meaning":"[형] 주된, 초기의"},{"id":718,"day":18,"word":"genre","meaning":"[명] 형식, 장르"},{"id":719,"day":18,"word":"erase","meaning":"[동] 지우다"},{"id":720,"day":18,"word":"review","meaning":"[동] 복습하다, 재검토하다 [명] 복습, 검토, 비평"},{"id":721,"day":19,"word":"vital","meaning":"[형] 필수적인, 중요한, 생명 유지와 관련된"},{"id":722,"day":19,"word":"incident","meaning":"[명] 사건, 일어난 일[형] 일어나기 쉬운"},{"id":723,"day":19,"word":"session","meaning":"[명] 시간, 회의, 기간, 학기"},{"id":724,"day":19,"word":"obvious","meaning":"[형] 분명한, 명백한"},{"id":725,"day":19,"word":"moderate","meaning":"[형] 온건한, 적당한"},{"id":726,"day":19,"word":"budget","meaning":"[명] 예산, 예산안"},{"id":727,"day":19,"word":"graze","meaning":"[동] 풀을 뜯다, 방목하다"},{"id":728,"day":19,"word":"fragile","meaning":"[형] 부서지기 쉬운"},{"id":729,"day":19,"word":"myth","meaning":"[명] 신화, 사회적 통념"},{"id":730,"day":19,"word":"fur","meaning":"[명] 부드러운 털, 모피"},{"id":731,"day":19,"word":"indifferent","meaning":"[형] 무관심한"},{"id":732,"day":19,"word":"strain","meaning":"[명] 긴장, 압박[동] 잡아당기다, 긴장시키다, 혹사하다"},{"id":733,"day":19,"word":"ingredient","meaning":"[명] 재료, 성분"},{"id":734,"day":19,"word":"dismiss","meaning":"[동] 묵살하다, 해고하다, 해산시키다"},{"id":735,"day":19,"word":"geometry","meaning":"[명] 기하학"},{"id":736,"day":19,"word":"glacier","meaning":"[명] 빙하"},{"id":737,"day":19,"word":"urge","meaning":"[동] 촉구하다, 강요하다"},{"id":738,"day":19,"word":"celebrity","meaning":"[명] 유명 인사, 명성"},{"id":739,"day":19,"word":"antique","meaning":"[형] 고대의, 옛날의, 고풍의[명] 골동품"},{"id":740,"day":19,"word":"profit","meaning":"[명] 이익, 이윤[동] 이익을 얻다"},{"id":741,"day":19,"word":"sphere","meaning":"[명] 구, 구체"},{"id":742,"day":19,"word":"inherit","meaning":"[동] 상속받다, 물려받다"},{"id":743,"day":19,"word":"disgrace","meaning":"[명] 불명예, 수치"},{"id":744,"day":19,"word":"crawl","meaning":"[동] 기어가다, 서행하다[명] 기어가기, 서행"},{"id":745,"day":19,"word":"scratch","meaning":"[동] 긁다, 할퀴다[명] 긁힌 자국, 찰과상"},{"id":746,"day":19,"word":"diabetes","meaning":"[명] 당뇨병"},{"id":747,"day":19,"word":"congestion","meaning":"[명] 혼잡, 밀집"},{"id":748,"day":19,"word":"constitute","meaning":"[동] 구성하다, 설립하다, 제정하다"},{"id":749,"day":19,"word":"flow","meaning":"[명] 흐름[동] 흐르다"},{"id":750,"day":19,"word":"investigate","meaning":"[동] 조사하다, 수사하다"},{"id":751,"day":19,"word":"barter","meaning":"[명] 물물 교환, 교역품[동] 물물 교환하다"},{"id":752,"day":19,"word":"circular","meaning":"[형] 원의, 순환의"},{"id":753,"day":19,"word":"chilly","meaning":"[형] 쌀쌀한, 냉담한"},{"id":754,"day":19,"word":"ancestor","meaning":"[명] 조상, 선조"},{"id":755,"day":19,"word":"fierce","meaning":"[형] 사나운, 맹렬한"},{"id":756,"day":19,"word":"vague","meaning":"[형] 희미한, 막연한, 모호한"},{"id":757,"day":19,"word":"rough","meaning":"[형] 거친, 난폭한, 대강의"},{"id":758,"day":19,"word":"content","meaning":"[명] 내용, 목차[형] 만족하는"},{"id":759,"day":19,"word":"obstacle","meaning":"[명] 장애물, 방해가 되는 것"},{"id":760,"day":19,"word":"editorial","meaning":"[형] 편집자의[명] 사설, 논설"},{"id":761,"day":20,"word":"abolish","meaning":"[동] 폐지하다"},{"id":762,"day":20,"word":"assure","meaning":"[동] 확실하게 하다, 보증하다"},{"id":763,"day":20,"word":"form","meaning":"[명] 형태, 종류[동] 형성하다"},{"id":764,"day":20,"word":"gender","meaning":"[명] 성, 성별"},{"id":765,"day":20,"word":"innovation","meaning":"[명] 혁신"},{"id":766,"day":20,"word":"opponent","meaning":"[명] 상대, 반대자[형] 반대하는"},{"id":767,"day":20,"word":"present","meaning":"[형] 현재의[명] 현재, 선물[동] 제출하다 나타내다"},{"id":768,"day":20,"word":"fertile","meaning":"[형] 비옥한, 기름진"},{"id":769,"day":20,"word":"emperor","meaning":"[명] 황제"},{"id":770,"day":20,"word":"dwell","meaning":"[동] 거주하다, 살다"},{"id":771,"day":20,"word":"chore","meaning":"[명] 허드렛일, 집안일"},{"id":772,"day":20,"word":"rehearsal","meaning":"[명] 리허설, 예행연습"},{"id":773,"day":20,"word":"fossil","meaning":"[명] 화석"},{"id":774,"day":20,"word":"glitter","meaning":"[동] 반짝이다 [명] 반짝임"},{"id":775,"day":20,"word":"carve","meaning":"[동] 새기다, 조각하다"},{"id":776,"day":20,"word":"decay","meaning":"[동] 부패하다, 쇠퇴하다[명] 부패, 쇠퇴"},{"id":777,"day":20,"word":"protein","meaning":"[명] 단백질"},{"id":778,"day":20,"word":"backward","meaning":"[부] 뒤쪽으로 후방에 거꾸로"},{"id":779,"day":20,"word":"translate","meaning":"[동] 번역하다, 옮기다"},{"id":780,"day":20,"word":"refresh","meaning":"[동] 상쾌하게 하다, 새롭게 하다"},{"id":781,"day":20,"word":"tissue","meaning":"[명] (생물) 조직"},{"id":782,"day":20,"word":"lord","meaning":"[명] 군주"},{"id":783,"day":20,"word":"substitute","meaning":"[동] 대체하다[명] 대리자, 대체물"},{"id":784,"day":20,"word":"scan","meaning":"[동] 정밀 검사하다, 유심히 쳐다보다"},{"id":785,"day":20,"word":"pottery","meaning":"[명] 도자기, 도예"},{"id":786,"day":20,"word":"layer","meaning":"[명] 층, 겹"},{"id":787,"day":20,"word":"property","meaning":"[명] 재산, 소유물 , 부동산"},{"id":788,"day":20,"word":"justify","meaning":"[동] 정당화하다"},{"id":789,"day":20,"word":"polish","meaning":"[동] 닦다, 윤을 내다, (문장 등을)다듬다"},{"id":790,"day":20,"word":"flavor","meaning":"[명] 맛[동] 맛을 내다"},{"id":791,"day":20,"word":"imprint","meaning":"[동] 찍다 감명시키다[명] 찍은 자국, 인상"},{"id":792,"day":20,"word":"heritage","meaning":"[명] 유산, 세습 재산"},{"id":793,"day":20,"word":"strive","meaning":"[동] 노력하다, 애쓰다 , 투쟁하다"},{"id":794,"day":20,"word":"radiant","meaning":"[형] 빛나는, 아주 밝은"},{"id":795,"day":20,"word":"exclaim","meaning":"[동] (감탄하며)외치다"},{"id":796,"day":20,"word":"asset","meaning":"[명] 자산, 재산"},{"id":797,"day":20,"word":"portray","meaning":"[동] 묘사하다, 설명하다, 초상을 그리다"},{"id":798,"day":20,"word":"administer","meaning":"[동] 관리•운영하다, 집행하다, 주다"},{"id":799,"day":20,"word":"wage","meaning":"[명] 급료"},{"id":800,"day":20,"word":"subscribe","meaning":"[동] 정기 구독하다"},{"id":801,"day":21,"word":"regret","meaning":"[동] 후회하다, [명] 후회"},{"id":802,"day":21,"word":"coffin","meaning":"[명] 관"},{"id":803,"day":21,"word":"divine","meaning":"[형] 신성한"},{"id":804,"day":21,"word":"revenue","meaning":"[명] 수익"},{"id":805,"day":21,"word":"corrupt","meaning":"[형] 부패한, 타락한, [동] 부패하다, 타락하다"},{"id":806,"day":21,"word":"probe","meaning":"[동] 조사하다, 연구하다, [명] 조사"},{"id":807,"day":21,"word":"factual","meaning":"[형] 실제의"},{"id":808,"day":21,"word":"swamp","meaning":"[명] 늪, 습지"},{"id":809,"day":21,"word":"expedition","meaning":"[명] 탐험"},{"id":810,"day":21,"word":"abnormal","meaning":"[형] 이상한, 비정상의"},{"id":811,"day":21,"word":"storage","meaning":"[명] 저장소, 저장"},{"id":812,"day":21,"word":"revive","meaning":"[동] 되살아나다"},{"id":813,"day":21,"word":"stool","meaning":"[명] (등받이 없는) 의자"},{"id":814,"day":21,"word":"hinder","meaning":"[동] 방해하다"},{"id":815,"day":21,"word":"flattery","meaning":"[명] 아첨"},{"id":816,"day":21,"word":"virtue","meaning":"[명] 미덕"},{"id":817,"day":21,"word":"deadline","meaning":"[명] 기한, 마감시간"},{"id":818,"day":21,"word":"equator","meaning":"[명] 적도"},{"id":819,"day":21,"word":"cognitive","meaning":"[형] 인식의"},{"id":820,"day":21,"word":"motion","meaning":"[명] 운동, 동작, [동] 동작을 해 보이다"},{"id":821,"day":21,"word":"humble","meaning":"[형] 겸손한, 비천한"},{"id":822,"day":21,"word":"bounce","meaning":"[동] 튀어 오르다, 깡충깡충 뛰다, (공이) 튀다"},{"id":823,"day":21,"word":"imprison","meaning":"[동] 투옥하다"},{"id":824,"day":21,"word":"enlist","meaning":"[동] 모집하다"},{"id":825,"day":21,"word":"hygiene","meaning":"[명] 위생, 위생학"},{"id":826,"day":21,"word":"upcoming","meaning":"[형] 다가오는"},{"id":827,"day":21,"word":"trace","meaning":"[명] 자취, 흔적, [동] 추적하다, 밝혀내다"},{"id":828,"day":21,"word":"pulse","meaning":"[명] 맥박"},{"id":829,"day":21,"word":"controversy","meaning":"[명] 논쟁, 언쟁, 논란"},{"id":830,"day":21,"word":"locate","meaning":"[동] (장소를) 찾아내다, ~에 위치하다"},{"id":831,"day":21,"word":"patent","meaning":"[명] 특허, [형] 특허를 받은, [동] 특허권을 얻다"},{"id":832,"day":21,"word":"lyric","meaning":"[명] 가사"},{"id":833,"day":21,"word":"convenience","meaning":"[명] 편의, 편리, 편의시설"},{"id":834,"day":21,"word":"rush","meaning":"[동] 돌진하다, 급하게 가다, [명] 돌진, 혼잡"},{"id":835,"day":21,"word":"carbon","meaning":"[명] 탄소"},{"id":836,"day":21,"word":"contaminate","meaning":"[동] 오염시키다, 더럽히다"},{"id":837,"day":21,"word":"external","meaning":"[형] 외부의"},{"id":838,"day":21,"word":"herd","meaning":"[명] 떼, 무리, [동] 떼를 짓다"},{"id":839,"day":21,"word":"allocate","meaning":"[동] 할당하다, 배분하다"},{"id":840,"day":21,"word":"gorgeous","meaning":"[형] 아주 멋진, 화려한"},{"id":841,"day":22,"word":"confess","meaning":"[동] 고백하다"},{"id":842,"day":22,"word":"subjective","meaning":"[형] 주관적인"},{"id":843,"day":22,"word":"hell","meaning":"[명] 지옥"},{"id":844,"day":22,"word":"acknowledge","meaning":"[동] 인정하다"},{"id":845,"day":22,"word":"accord","meaning":"[동] 일치하다, 조화하다, [명] 일치, 합의"},{"id":846,"day":22,"word":"immense","meaning":"[형] 엄청난"},{"id":847,"day":22,"word":"extract","meaning":"[동] 추출하다, [명] 추출물"},{"id":848,"day":22,"word":"sewage","meaning":"[명] 하수, 오물"},{"id":849,"day":22,"word":"reconciliation","meaning":"[명] 화해"},{"id":850,"day":22,"word":"amid","meaning":"[전] ~의 한가운데"},{"id":851,"day":22,"word":"warrant","meaning":"[명] 보증서, 영장, 정당한 이유"},{"id":852,"day":22,"word":"complement","meaning":"[동] 보완하다"},{"id":853,"day":22,"word":"ceramic","meaning":"[명] 도자기, 요업"},{"id":854,"day":22,"word":"license","meaning":"[명] 면허, 인가, [동] 면허를 주다, 허가하다"},{"id":855,"day":22,"word":"emerge","meaning":"[동] 나타나다"},{"id":856,"day":22,"word":"halt","meaning":"[동] 정지시키다, [명] 정지, 멈춤"},{"id":857,"day":22,"word":"ivory","meaning":"[명] 상아, 상아색"},{"id":858,"day":22,"word":"ponder","meaning":"[동] 곰곰이 생각하다, 심사숙고하다"},{"id":859,"day":22,"word":"lottery","meaning":"[명] 복권, 추첨"},{"id":860,"day":22,"word":"stroke","meaning":"[명] 타격, 뇌졸중"},{"id":861,"day":22,"word":"burglar","meaning":"[명] 강도"},{"id":862,"day":22,"word":"blame","meaning":"[동] 비난하다, ~을 탓하다, [명] 비난"},{"id":863,"day":22,"word":"transplant","meaning":"[동] 이식하다"},{"id":864,"day":22,"word":"cluster","meaning":"[명] 무리"},{"id":865,"day":22,"word":"borrow","meaning":"[동] 빌리다"},{"id":866,"day":22,"word":"derive","meaning":"[동] 끌어내다, ~에서 비롯되다"},{"id":867,"day":22,"word":"plague","meaning":"[명] 전염병, [동] 괴롭히다"},{"id":868,"day":22,"word":"certificate","meaning":"[명] 증명서"},{"id":869,"day":22,"word":"deluxe","meaning":"[형] 호화로운"},{"id":870,"day":22,"word":"convey","meaning":"[동] 나르다, 전달하다, (생각, 감정을) 전하다"},{"id":871,"day":22,"word":"depth","meaning":"[명] 깊이"},{"id":872,"day":22,"word":"evaporate","meaning":"[동] 증발하다"},{"id":873,"day":22,"word":"lame","meaning":"[형] 절름발이의, 설득력이 없는"},{"id":874,"day":22,"word":"conduct","meaning":"[동] 실시하다, 수행하다, 행동하다, [명] 행위"},{"id":875,"day":22,"word":"sour","meaning":"[형] (맛이) 신"},{"id":876,"day":22,"word":"repetitive","meaning":"[형] 반복성의"},{"id":877,"day":22,"word":"oppress","meaning":"[동] 억압하다"},{"id":878,"day":22,"word":"leftover","meaning":"[명] 남은 음식, 잔재"},{"id":879,"day":22,"word":"embrace","meaning":"[동] 포옹하다, 껴안다, 수용하다"},{"id":880,"day":22,"word":"blade","meaning":"[명] 칼날"},{"id":881,"day":23,"word":"abundant","meaning":"[형] 풍부한"},{"id":882,"day":23,"word":"duplicate","meaning":"[형] 똑같은, [동] 복사하다, [명] 사본"},{"id":883,"day":23,"word":"remind","meaning":"[동] 상기시키다, 생각나게 하다"},{"id":884,"day":23,"word":"altitude","meaning":"[명] 고도"},{"id":885,"day":23,"word":"glimpse","meaning":"[동] 흘끗 보다, [명] 흘끗 봄"},{"id":886,"day":23,"word":"blend","meaning":"[동] 섞다"},{"id":887,"day":23,"word":"swell","meaning":"[동] 부풀다, [명] 팽창"},{"id":888,"day":23,"word":"grief","meaning":"[명] 비탄, 큰 슬픔"},{"id":889,"day":23,"word":"beverage","meaning":"[명] 음료수"},{"id":890,"day":23,"word":"warrior","meaning":"[명] 전사, 용사"},{"id":891,"day":23,"word":"earn","meaning":"[동] (평판을) 얻다, 벌다"},{"id":892,"day":23,"word":"slice","meaning":"[명] (얇게 썬) 조각, [동] 얇게 썰다"},{"id":893,"day":23,"word":"exotic","meaning":"[형] 이국적인"},{"id":894,"day":23,"word":"arrogant","meaning":"[형] 거만한, 건방진"},{"id":895,"day":23,"word":"vanish","meaning":"[동] 사라지다"},{"id":896,"day":23,"word":"rational","meaning":"[형] 이성적인, 합리적인"},{"id":897,"day":23,"word":"predominant","meaning":"[형] 우세한, 두드러진"},{"id":898,"day":23,"word":"cozy","meaning":"[형] 안락한, 아늑한"},{"id":899,"day":23,"word":"broker","meaning":"[명] 중개인, 브로커, [동] 중개하다"},{"id":900,"day":23,"word":"auction","meaning":"[명] 경매, [동] 경매로 팔다"},{"id":901,"day":23,"word":"obsess","meaning":"[동] 사로잡다, 강박 관념을 갖다"},{"id":902,"day":23,"word":"feed","meaning":"[동] ~에 밥을 주다, ~에 먹이를 주다"},{"id":903,"day":23,"word":"outbreak","meaning":"[명] (전쟁, 사고 등의) 발발"},{"id":904,"day":23,"word":"invent","meaning":"[동] 발명하다"},{"id":905,"day":23,"word":"pioneer","meaning":"[명] 개척자, [동] 개척하다"},{"id":906,"day":23,"word":"assert","meaning":"[동] 주장하다"},{"id":907,"day":23,"word":"undo","meaning":"[동] (잠긴 것을) 풀다, 원상태로 돌리다"},{"id":908,"day":23,"word":"bouquet","meaning":"[명] 꽃다발"},{"id":909,"day":23,"word":"elaborate","meaning":"[형] 정교한"},{"id":910,"day":23,"word":"toss","meaning":"[동] 던지다, [명] 던지기"},{"id":911,"day":23,"word":"retain","meaning":"[동] 보유하다"},{"id":912,"day":23,"word":"radioactive","meaning":"[형] 방사능의"},{"id":913,"day":23,"word":"buildup","meaning":"[명] 축적"},{"id":914,"day":23,"word":"machinery","meaning":"[명] 기계"},{"id":915,"day":23,"word":"passerby","meaning":"[명] 통행인"},{"id":916,"day":23,"word":"auditorium","meaning":"[명] 강당"},{"id":917,"day":23,"word":"lay","meaning":"[동] 놓다, (알을) 낳다"},{"id":918,"day":23,"word":"neglect","meaning":"[동] 무시하다, [명] 소홀"},{"id":919,"day":23,"word":"feedback","meaning":"[명] 피드백"},{"id":920,"day":23,"word":"promote","meaning":"[동] 증진하다, 승진시키다"},{"id":921,"day":24,"word":"impair","meaning":"[동] 손상시키다"},{"id":922,"day":24,"word":"metaphor","meaning":"[명] 은유"},{"id":923,"day":24,"word":"dispense","meaning":"[동] 분배하다, 나누어 주다"},{"id":924,"day":24,"word":"bruise","meaning":"[명] 멍, 타박상"},{"id":925,"day":24,"word":"attorney","meaning":"[명] 변호사, 대리인"},{"id":926,"day":24,"word":"framework","meaning":"[명] 뼈대, 틀, 체제"},{"id":927,"day":24,"word":"heredity","meaning":"[명] 유전"},{"id":928,"day":24,"word":"naive","meaning":"[형] 순진한"},{"id":929,"day":24,"word":"shed","meaning":"[동] 떨구다, 흘리다"},{"id":930,"day":24,"word":"metropolitan","meaning":"[형] 대도시의"},{"id":931,"day":24,"word":"shield","meaning":"[명] 방패, [동] 보호하다"},{"id":932,"day":24,"word":"induce","meaning":"[동] 유도하다, 설득하여 ~시키다"},{"id":933,"day":24,"word":"bazaar","meaning":"[명] 시장, 바자"},{"id":934,"day":24,"word":"expel","meaning":"[동] 추방하다"},{"id":935,"day":24,"word":"plow","meaning":"[명] 쟁기, [동] 갈다"},{"id":936,"day":24,"word":"prolong","meaning":"[동] 연장하다"},{"id":937,"day":24,"word":"fluent","meaning":"[형] 유창한"},{"id":938,"day":24,"word":"margin","meaning":"[명] 가장자리"},{"id":939,"day":24,"word":"ecology","meaning":"[명] 생태학, 생태"},{"id":940,"day":24,"word":"interior","meaning":"[명] 내부, [형] 내부의"},{"id":941,"day":24,"word":"ornament","meaning":"[명] 장식, [동] 장식하다"},{"id":942,"day":24,"word":"separate","meaning":"[동] 분리하다"},{"id":943,"day":24,"word":"ripe","meaning":"[형] 익은"},{"id":944,"day":24,"word":"vibrate","meaning":"[동] 진동하다, 흔들다"},{"id":945,"day":24,"word":"urgent","meaning":"[형] 긴급한"},{"id":946,"day":24,"word":"speculate","meaning":"[동] 사색하다, 투기하다"},{"id":947,"day":24,"word":"epidemic","meaning":"[명] 전염병"},{"id":948,"day":24,"word":"precede","meaning":"[동] ~에 앞서다"},{"id":949,"day":24,"word":"breathtaking","meaning":"[형] 숨막히는"},{"id":950,"day":24,"word":"portfolio","meaning":"[명] 포트폴리오"},{"id":951,"day":24,"word":"beware","meaning":"[동] 주의하다"},{"id":952,"day":24,"word":"handcuff","meaning":"[명] 수갑"},{"id":953,"day":24,"word":"overturn","meaning":"[동] 전복시키다, [명] 전복"},{"id":954,"day":24,"word":"pregnant","meaning":"[형] 임신한"},{"id":955,"day":24,"word":"intelligence","meaning":"[명] 지능"},{"id":956,"day":24,"word":"adapt","meaning":"[동] 적응시키다"},{"id":957,"day":24,"word":"settle","meaning":"[동] 정착하다"},{"id":958,"day":24,"word":"assassinate","meaning":"[동] 암살하다"},{"id":959,"day":24,"word":"vapor","meaning":"[명] 증기"},{"id":960,"day":24,"word":"tuition","meaning":"[명] 수업료"},{"id":961,"day":25,"word":"literature","meaning":"[명] 문학"},{"id":962,"day":25,"word":"loop","meaning":"[명] 고리, [동] 고리로 만들다"},{"id":963,"day":25,"word":"quote","meaning":"[동] 인용하다, [명] 인용구"},{"id":964,"day":25,"word":"inhale","meaning":"[동] 들이쉬다, 흡입하다"},{"id":965,"day":25,"word":"prospect","meaning":"[명] 전망, 가능성"},{"id":966,"day":25,"word":"anchor","meaning":"[명] 닻, 앵커"},{"id":967,"day":25,"word":"reference","meaning":"[명] 참고, 언급"},{"id":968,"day":25,"word":"compound","meaning":"[동] 혼합하다, [명] 혼합물, [형] 합성의"},{"id":969,"day":25,"word":"withstand","meaning":"[동] 견디다, 버티다"},{"id":970,"day":25,"word":"implement","meaning":"[동] 실행하다, [명] 도구"},{"id":971,"day":25,"word":"anonymous","meaning":"[형] 익명의"},{"id":972,"day":25,"word":"collide","meaning":"[동] 충돌하다, 일치하지 않다"},{"id":973,"day":25,"word":"memorial","meaning":"[명] 기념물"},{"id":974,"day":25,"word":"vacant","meaning":"[형] 비어 있는, 빈자리의"},{"id":975,"day":25,"word":"technical","meaning":"[형] 기술의"},{"id":976,"day":25,"word":"summon","meaning":"[동] 소환하다"},{"id":977,"day":25,"word":"orchard","meaning":"[명] 과수원"},{"id":978,"day":25,"word":"proportion","meaning":"[명] 비율, 부분"},{"id":979,"day":25,"word":"antibiotic","meaning":"[명] 항생 물질"},{"id":980,"day":25,"word":"overtake","meaning":"[동] 따라잡다"},{"id":981,"day":25,"word":"resemble","meaning":"[동] ~와 닮다"},{"id":982,"day":25,"word":"wander","meaning":"[동] (정처없이) 돌아다니다, 헤매다"},{"id":983,"day":25,"word":"compassion","meaning":"[명] 동정"},{"id":984,"day":25,"word":"preoccupation","meaning":"[명] 몰두, 집착"},{"id":985,"day":25,"word":"paste","meaning":"[동] 풀로 붙이다, [명] 풀"},{"id":986,"day":25,"word":"provoke","meaning":"[동] 선동하다, 자극하다"},{"id":987,"day":25,"word":"wicked","meaning":"[형] 사악한, 심술궂은"},{"id":988,"day":25,"word":"sprain","meaning":"[동] 발목을 삐다"},{"id":989,"day":25,"word":"propaganda","meaning":"[명] 선전"},{"id":990,"day":25,"word":"consistent","meaning":"[형] 일관된"},{"id":991,"day":25,"word":"disrupt","meaning":"[동] 붕괴시키다"},{"id":992,"day":25,"word":"solitary","meaning":"[형] 혼자의, 고립된"},{"id":993,"day":25,"word":"bury","meaning":"[동] (땅에) 묻다"},{"id":994,"day":25,"word":"rust","meaning":"[명] 녹, [동] 녹이 슬다, 부식하다"},{"id":995,"day":25,"word":"discuss","meaning":"[동] 토론하다"},{"id":996,"day":25,"word":"referee","meaning":"[명] 심판"},{"id":997,"day":25,"word":"sector","meaning":"[명] 분야, 지역"},{"id":998,"day":25,"word":"boost","meaning":"[동] 밀어올리다, [명] 상승"},{"id":999,"day":25,"word":"gymnastics","meaning":"[명] 체조"},{"id":1000,"day":25,"word":"gross","meaning":"[형] 총합의, [명] 총합"},{"id":1001,"day":26,"word":"last","meaning":"[형] 마지막의, 지난"},{"id":1002,"day":26,"word":"tariff","meaning":"[명] 관세, 운임표"},{"id":1003,"day":26,"word":"beloved","meaning":"[형] 총애받는, 사랑하는"},{"id":1004,"day":26,"word":"lyric","meaning":"[명] 가사"},{"id":1005,"day":26,"word":"yeast","meaning":"[명] 이스트, 효모"},{"id":1006,"day":26,"word":"skyscraper","meaning":"[명] 고층건물"},{"id":1007,"day":26,"word":"inquire","meaning":"[동] 묻다"},{"id":1008,"day":26,"word":"spade","meaning":"[명] 삽, 스페이드"},{"id":1009,"day":26,"word":"vacuum","meaning":"[명] 진공, 공백"},{"id":1010,"day":26,"word":"migrate","meaning":"[동] 이주하다, 이동하다"},{"id":1011,"day":26,"word":"spectacle","meaning":"[명] 구경거리, 장관"},{"id":1012,"day":26,"word":"surplus","meaning":"[명] 여분, 나머지, [형] 나머지의"},{"id":1013,"day":26,"word":"simulate","meaning":"[동] 흉내내다, ~의 모의 실험을 하다"},{"id":1014,"day":26,"word":"integration","meaning":"[명] 통합"},{"id":1015,"day":26,"word":"hypothesis","meaning":"[명] 가설, 가정"},{"id":1016,"day":26,"word":"affirm","meaning":"[동] 단언하다"},{"id":1017,"day":26,"word":"fortress","meaning":"[명] 요새"},{"id":1018,"day":26,"word":"reed","meaning":"[명] 갈대"},{"id":1019,"day":26,"word":"cue","meaning":"[명] 신호, 단서, [동] 신호를 주다"},{"id":1020,"day":26,"word":"mole","meaning":"[명] 반점, 두더지"},{"id":1021,"day":26,"word":"divide","meaning":"[동] 나누다"},{"id":1022,"day":26,"word":"inborn","meaning":"[형] 타고난"},{"id":1023,"day":26,"word":"overlap","meaning":"[동] 겹치다, 중복되다"},{"id":1024,"day":26,"word":"fatigue","meaning":"[명] 피곤"},{"id":1025,"day":26,"word":"clone","meaning":"[명] 복제, 복제품, [동] 복제하다"},{"id":1026,"day":26,"word":"peel","meaning":"[동] 껍질을 벗기다"},{"id":1027,"day":26,"word":"ease","meaning":"[명] 쉬움, 편안함, [동] 편하게 하다, 완화하다"},{"id":1028,"day":26,"word":"overcome","meaning":"[동] 극복하다"},{"id":1029,"day":26,"word":"fund","meaning":"[명] 자금"},{"id":1030,"day":26,"word":"bias","meaning":"[명] 편견, 선입견"},{"id":1031,"day":26,"word":"vaccine","meaning":"[명] 백신"},{"id":1032,"day":26,"word":"tread","meaning":"[동] 밟다, [명] 밟기"},{"id":1033,"day":26,"word":"vomit","meaning":"[동] 구토하다, [명] 구토"},{"id":1034,"day":26,"word":"prophecy","meaning":"[명] 예언"},{"id":1035,"day":26,"word":"correspond","meaning":"[동] 일치하다, 해당하다, 편지를 주고받다"},{"id":1036,"day":26,"word":"cling","meaning":"[동] 꼭 붙잡다, 달라붙다"},{"id":1037,"day":26,"word":"mutation","meaning":"[명] 돌연변이, 변형"},{"id":1038,"day":26,"word":"obscure","meaning":"[형] 모호한, 잘 알려지지 않은, [동] 모호하게 하다"},{"id":1039,"day":26,"word":"tyrant","meaning":"[명] 폭군"},{"id":1040,"day":26,"word":"odd","meaning":"[형] 이상한, 홀수의"},{"id":1041,"day":27,"word":"intriguing","meaning":"[형] 아주 흥미로운"},{"id":1042,"day":27,"word":"restrain","meaning":"[동] 억제하다, 제지하다"},{"id":1043,"day":27,"word":"bundle","meaning":"[명] 묶음"},{"id":1044,"day":27,"word":"enclose","meaning":"[동] 동봉하다, 둘러싸다"},{"id":1045,"day":27,"word":"insert","meaning":"[동] 삽입하다, 덧붙이다"},{"id":1046,"day":27,"word":"keen","meaning":"[형] 예민한, ~을 열망하는"},{"id":1047,"day":27,"word":"constrict","meaning":"[동] 수축시키다"},{"id":1048,"day":27,"word":"aid","meaning":"[명] 도움, 지원"},{"id":1049,"day":27,"word":"reputation","meaning":"[명] 명성"},{"id":1050,"day":27,"word":"measurement","meaning":"[명] 측정"},{"id":1051,"day":27,"word":"originate","meaning":"[동] 유래하다"},{"id":1052,"day":27,"word":"flour","meaning":"[명] 밀가루"},{"id":1053,"day":27,"word":"manipulate","meaning":"[동] 조작하다, 잘 다루다"},{"id":1054,"day":27,"word":"experiment","meaning":"[명] 실험, [동] 실험하다"},{"id":1055,"day":27,"word":"patriot","meaning":"[명] 애국자"},{"id":1056,"day":27,"word":"interchange","meaning":"[동] 교환하다"},{"id":1057,"day":27,"word":"intuitive","meaning":"[형] 직감에 의한, 직관력 있는"},{"id":1058,"day":27,"word":"garment","meaning":"[명] 의류"},{"id":1059,"day":27,"word":"spontaneous","meaning":"[형] 자발적인, 즉흥적인"},{"id":1060,"day":27,"word":"vertical","meaning":"[형] 수직의, 세로의, [명] 수직선"},{"id":1061,"day":27,"word":"testify","meaning":"[동] 증언하다, 증명하다"},{"id":1062,"day":27,"word":"mentor","meaning":"[명] 조언자"},{"id":1063,"day":27,"word":"vivid","meaning":"[형] 생생한, 선명한"},{"id":1064,"day":27,"word":"pasture","meaning":"[명] 초원"},{"id":1065,"day":27,"word":"crust","meaning":"[명] (빵, 파이의) 껍질, 딱딱한 표면"},{"id":1066,"day":27,"word":"comprehend","meaning":"[동] 이해하다, 파악하다"},{"id":1067,"day":27,"word":"plunge","meaning":"[동] 뛰어들다, 급락하다"},{"id":1068,"day":27,"word":"nasty","meaning":"[형] 더러운, 비열한"},{"id":1069,"day":27,"word":"appreciate","meaning":"[동] 진가를 알아보다, 고맙게 여기다, 감상하다"},{"id":1070,"day":27,"word":"emigrate","meaning":"[동] 이민을 가다"},{"id":1071,"day":27,"word":"deed","meaning":"[명] 행동, 공적"},{"id":1072,"day":27,"word":"skinny","meaning":"[형] 깡마른, 옷이 몸에 딱 붙는"},{"id":1073,"day":27,"word":"grill","meaning":"[명] 그릴, 석쇠, [동] 그릴에 굽다"},{"id":1074,"day":27,"word":"canal","meaning":"[명] 운하, 수로"},{"id":1075,"day":27,"word":"curse","meaning":"[명] 저주"},{"id":1076,"day":27,"word":"adverse","meaning":"[형] 불리한, 반대의"},{"id":1077,"day":27,"word":"censorship","meaning":"[명] 검열관"},{"id":1078,"day":27,"word":"forehead","meaning":"[명] 이마"},{"id":1079,"day":27,"word":"appetite","meaning":"[명] 식욕, 욕망"},{"id":1080,"day":27,"word":"flaw","meaning":"[명] 결함, 결점"},{"id":1081,"day":28,"word":"outgoing","meaning":"[형] 외향적인, 사교적인"},{"id":1082,"day":28,"word":"verbal","meaning":"[형] 말의, 구두의"},{"id":1083,"day":28,"word":"liberate","meaning":"[동] 해방시키다"},{"id":1084,"day":28,"word":"segregation","meaning":"[명] 인종 차별, 차별 정책, 분리"},{"id":1085,"day":28,"word":"advance","meaning":"[동] 전진하다, 진보하다, [명] 발전, 전진, 진보"},{"id":1086,"day":28,"word":"contemplate","meaning":"[동] ~을 숙고하다, 심사숙고하다, 고려하다, 응시하다"},{"id":1087,"day":28,"word":"underlying","meaning":"[형] 기초를 이루는, 근본적인, 밑에 있는"},{"id":1088,"day":28,"word":"academic","meaning":"[형] 학문적인, 학구적인"},{"id":1089,"day":28,"word":"stem","meaning":"[명] 줄기, [동] 생기다, 일어나다"},{"id":1090,"day":28,"word":"irrigation","meaning":"[명] 관개"},{"id":1091,"day":28,"word":"consecutive","meaning":"[형] 연이은, 연속적인"},{"id":1092,"day":28,"word":"superficial","meaning":"[형] 표면상의, 피상적인"},{"id":1093,"day":28,"word":"refuge","meaning":"[명] 피난처, 도피처, 보호구역"},{"id":1094,"day":28,"word":"swear","meaning":"[동] 맹세하다, 욕을 하다"},{"id":1095,"day":28,"word":"allergy","meaning":"[명] 알레르기"},{"id":1096,"day":28,"word":"norm","meaning":"[명] 표준, 규범"},{"id":1097,"day":28,"word":"endeavor","meaning":"[동] 노력하다, 시도하다, [명] 노력, 시도"},{"id":1098,"day":28,"word":"erect","meaning":"[형] 똑바로 선, [동] 세우다"},{"id":1099,"day":28,"word":"feminine","meaning":"[형] 여성의, 여성스러운"},{"id":1100,"day":28,"word":"drowsy","meaning":"[형] 졸리는"}];
+const TOTAL_DAYS = Math.max(...WORDS.map(w => w.day));
 
 // ─────────────────────────────────────────────
 //  SHARED UTILS
@@ -804,61 +396,196 @@ function shuffle(arr) {
   return a;
 }
 
+function wordsForDay(d) { return WORDS.filter(w => w.day === d); }
+
 function hideAll() {
-  ['start-screen','quiz-screen','sentence-screen','bulk-screen','hama-screen','result-screen']
+  ['start-screen','day-detail-screen','quiz-screen','bulk-screen','result-screen','wrongnote-screen']
     .forEach(id => document.getElementById(id).style.display = 'none');
 }
+
+let currentDay = null;
 
 function goHome() {
   hideAll();
   document.getElementById('start-screen').style.display = 'block';
+  renderHome();
 }
 
 // ─────────────────────────────────────────────
-//  QUIZ MODE (en-to-ko / ko-to-en / typing)
+//  WRONG NOTE (persistent, localStorage)
 // ─────────────────────────────────────────────
-let quizWords = [], currentIndex = 0, correctCount = 0, wrongCount = 0;
-let wrongWords = [], answered = false, quizMode = 'en-to-ko';
+const WN_KEY = 'wordMasterWrongNote';
 
-function startQuiz(wordPool, mode) {
-  if (mode) quizMode = mode;
-  const pool = wordPool || WORDS;
-  quizWords = shuffle(pool).slice(0, Math.min(30, pool.length));
-  currentIndex = 0; correctCount = 0; wrongCount = 0; wrongWords = []; answered = false;
+function loadWrongNote() {
+  try { return JSON.parse(localStorage.getItem(WN_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+function saveWrongNote(note) { localStorage.setItem(WN_KEY, JSON.stringify(note)); }
 
+function addToWrongNote(word, meaning) {
+  const note = loadWrongNote();
+  if (!note[word]) note[word] = { word, meaning, count: 0 };
+  note[word].count++;
+  note[word].meaning = meaning;
+  saveWrongNote(note);
+  updateHomeWrongCount();
+}
+
+function clearWrongNote() {
+  if (!confirm('오답 노트를 모두 비울까요?')) return;
+  localStorage.removeItem(WN_KEY);
+  renderWrongNote();
+  updateHomeWrongCount();
+}
+
+function updateHomeWrongCount() {
+  const note = loadWrongNote();
+  const n = Object.keys(note).length;
+  const el = document.getElementById('home-wn-count');
+  if (el) el.textContent = `지금까지 틀린 단어 ${n}개`;
+}
+
+function openWrongNote() {
+  hideAll();
+  document.getElementById('wrongnote-screen').style.display = 'block';
+  renderWrongNote();
+}
+
+function renderWrongNote() {
+  const note = loadWrongNote();
+  const entries = Object.values(note).sort((a, b) => b.count - a.count);
+  document.getElementById('wn-stats').textContent = `총 ${entries.length}개 단어`;
+  const list = document.getElementById('wn-list');
+  const empty = document.getElementById('wn-empty');
+  list.innerHTML = '';
+  if (entries.length === 0) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  entries.forEach(e => {
+    const item = document.createElement('div');
+    item.className = 'wrong-item';
+    item.innerHTML = `<span class="word">${e.word}</span><span><span class="meaning">${e.meaning}</span><span class="miss-count">${e.count}회 틀림</span></span>`;
+    list.appendChild(item);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  HOME RENDER (day grid + pair grids)
+// ─────────────────────────────────────────────
+function renderHome() {
+  document.querySelector('.subtitle').textContent =
+    `Day별로 끊어서 영단어를 암기하세요 (총 ${WORDS.length}단어 · ${TOTAL_DAYS}일)`;
+
+  const dayGrid = document.getElementById('day-grid');
+  dayGrid.innerHTML = '';
+  for (let d = 1; d <= TOTAL_DAYS; d++) {
+    const count = wordsForDay(d).length;
+    const btn = document.createElement('button');
+    btn.className = 'day-btn';
+    btn.innerHTML = `Day ${d}<span class="day-count">${count}개</span>`;
+    btn.onclick = () => openDayDetail(d);
+    dayGrid.appendChild(btn);
+  }
+
+  const fwdGrid = document.getElementById('pair-grid-forward');
+  fwdGrid.innerHTML = '';
+  for (let d = 1; d < TOTAL_DAYS; d++) {
+    const btn = document.createElement('button');
+    btn.className = 'pair-btn';
+    btn.textContent = `Day ${d}+${d + 1}`;
+    btn.onclick = () => startPairQuiz(d, d + 1);
+    fwdGrid.appendChild(btn);
+  }
+
+  const bwdGrid = document.getElementById('pair-grid-backward');
+  bwdGrid.innerHTML = '';
+  for (let d = TOTAL_DAYS; d > 1; d--) {
+    const btn = document.createElement('button');
+    btn.className = 'pair-btn';
+    btn.textContent = `Day ${d}+${d - 1}`;
+    btn.onclick = () => startPairQuiz(d, d - 1);
+    bwdGrid.appendChild(btn);
+  }
+
+  updateHomeWrongCount();
+}
+
+function openDayDetail(d) {
+  currentDay = d;
+  hideAll();
+  document.getElementById('day-detail-screen').style.display = 'block';
+  document.getElementById('dd-title').textContent = `Day ${d}`;
+  document.getElementById('dd-sub').textContent = `${wordsForDay(d).length}개 단어`;
+}
+
+// ─────────────────────────────────────────────
+//  GENERIC QUIZ ENGINE
+//  question = { word, meaning, type: 'choose-meaning' | 'choose-word' | 'write-meaning' }
+// ─────────────────────────────────────────────
+let quizQuestions = [], quizIndex = 0, quizCorrect = 0, quizWrong = 0;
+let quizWrongList = [], quizAnswered = false, quizLabel = '';
+let quizRetryFn = null;
+
+const TYPE_LABEL = {
+  'choose-meaning': '단어 → 뜻 선택',
+  'choose-word': '뜻 → 단어 선택',
+  'write-meaning': '뜻 직접 쓰기'
+};
+
+function buildQuestions(words, type) {
+  // type: fixed type string, or 'mixed' to randomly assign per word
+  const types = ['choose-meaning', 'choose-word', 'write-meaning'];
+  return words.map(w => ({
+    word: w.word,
+    meaning: w.meaning,
+    type: type === 'mixed' ? types[Math.floor(Math.random() * types.length)] : type
+  }));
+}
+
+function startDayChoiceQuiz(day, type) {
+  const pool = wordsForDay(day);
+  const questions = shuffle(buildQuestions(pool, type));
+  runQuiz(questions, `Day ${day} · ${TYPE_LABEL[type]}`, () => startDayChoiceQuiz(day, type));
+}
+
+function startPairQuiz(dayA, dayB) {
+  const pool = wordsForDay(dayA).concat(wordsForDay(dayB));
+  const picked = shuffle(pool).slice(0, Math.min(50, pool.length));
+  const questions = buildQuestions(picked, 'mixed');
+  const dir = dayB > dayA ? '정방향' : '역방향';
+  runQuiz(questions, `Day ${dayA}+${dayB} · ${dir} 조합 (${questions.length}문제)`, () => startPairQuiz(dayA, dayB));
+}
+
+function runQuiz(questions, label, retryFn) {
+  quizQuestions = questions;
+  quizIndex = 0; quizCorrect = 0; quizWrong = 0; quizWrongList = []; quizAnswered = false;
+  quizLabel = label; quizRetryFn = retryFn;
   hideAll();
   document.getElementById('quiz-screen').style.display = 'block';
-
-  const labels = {'en-to-ko':'English → 한글', 'ko-to-en':'한글 → English', 'typing':'직접 입력'};
-  document.getElementById('quiz-mode-label').textContent = labels[quizMode] || '';
-  showQuestion();
+  document.getElementById('quiz-mode-label').textContent = label;
+  showQuizQuestion();
 }
 
-function retryWrong() {
-  if (wrongWords.length === 0) return;
-  const pool = wrongWords.map(w => WORDS.find(x => x.word === w.word) || {word:w.word, meaning:w.correctMeaning});
-  startQuiz(pool, quizMode);
-}
+function showQuizQuestion() {
+  quizAnswered = false;
+  const total = quizQuestions.length;
+  const cur = quizQuestions[quizIndex];
 
-function showQuestion() {
-  answered = false;
-  const total = quizWords.length;
-  const cur = quizWords[currentIndex];
+  document.getElementById('quiz-counter').textContent = `${quizIndex + 1} / ${total}`;
+  document.getElementById('score-correct').textContent = `✓ ${quizCorrect}`;
+  document.getElementById('score-wrong').textContent = `✗ ${quizWrong}`;
+  document.getElementById('progress-fill').style.width = `${(quizIndex / total) * 100}%`;
 
-  document.getElementById('quiz-counter').textContent  = `${currentIndex + 1} / ${total}`;
-  document.getElementById('score-correct').textContent = `✓ ${correctCount}`;
-  document.getElementById('score-wrong').textContent   = `✗ ${wrongCount}`;
-  document.getElementById('progress-fill').style.width = `${(currentIndex / total) * 100}%`;
-
-  const wordEl    = document.getElementById('quiz-word');
-  const meaningEl = document.getElementById('quiz-meaning');
+  const wordEl = document.getElementById('quiz-word');
   const optionsEl = document.getElementById('options-container');
-  const typingEl  = document.getElementById('typing-area');
-  const revealEl  = document.getElementById('answer-reveal');
+  const typingEl = document.getElementById('typing-area');
+  const revealEl = document.getElementById('answer-reveal');
   const typeInput = document.getElementById('type-input');
+  const tagEl = document.getElementById('quiz-qtype-tag');
 
-  if (quizMode === 'typing') {
-    wordEl.style.display = ''; meaningEl.style.display = 'none';
+  tagEl.style.display = 'inline-block';
+  tagEl.textContent = TYPE_LABEL[cur.type];
+
+  if (cur.type === 'write-meaning') {
     wordEl.textContent = cur.word;
     optionsEl.style.display = 'none'; typingEl.style.display = 'flex';
     revealEl.style.display = 'none';
@@ -866,22 +593,20 @@ function showQuestion() {
     typeInput.className = 'type-input';
     document.getElementById('btn-submit').disabled = false;
     setTimeout(() => typeInput.focus(), 50);
-  } else if (quizMode === 'en-to-ko') {
-    wordEl.style.display = ''; meaningEl.style.display = 'none';
+  } else if (cur.type === 'choose-meaning') {
     wordEl.textContent = cur.word;
     optionsEl.style.display = 'flex'; typingEl.style.display = 'none';
-    const wrongs  = shuffle(WORDS.filter(w => w.meaning !== cur.meaning)).slice(0, 3).map(w => w.meaning);
-    renderOptions(shuffle([cur.meaning, ...wrongs]), cur.meaning, cur);
-  } else {
-    wordEl.style.display = 'none'; meaningEl.style.display = '';
-    meaningEl.textContent = cur.meaning;
+    const wrongs = shuffle(WORDS.filter(w => w.meaning !== cur.meaning)).slice(0, 4).map(w => w.meaning);
+    renderQuizOptions(shuffle([cur.meaning, ...wrongs]), cur.meaning, cur);
+  } else { // choose-word
+    wordEl.textContent = cur.meaning;
     optionsEl.style.display = 'flex'; typingEl.style.display = 'none';
-    const wrongs  = shuffle(WORDS.filter(w => w.word !== cur.word)).slice(0, 3).map(w => w.word);
-    renderOptions(shuffle([cur.word, ...wrongs]), cur.word, cur);
+    const wrongs = shuffle(WORDS.filter(w => w.word !== cur.word)).slice(0, 4).map(w => w.word);
+    renderQuizOptions(shuffle([cur.word, ...wrongs]), cur.word, cur);
   }
 }
 
-function renderOptions(options, correctValue, cur) {
+function renderQuizOptions(options, correctValue, cur) {
   const container = document.getElementById('options-container');
   container.innerHTML = '';
   options.forEach((opt, i) => {
@@ -889,45 +614,50 @@ function renderOptions(options, correctValue, cur) {
     btn.className = 'option-btn';
     btn.innerHTML = `<span class="option-number">${i + 1}</span>${opt}`;
     btn.dataset.value = opt;
-    btn.addEventListener('click', () => handleAnswer(btn, opt, correctValue, cur));
+    btn.addEventListener('click', () => handleQuizAnswer(btn, opt, correctValue, cur));
     container.appendChild(btn);
   });
 }
 
-function handleAnswer(btn, selected, correctValue, cur) {
-  if (answered) return;
-  answered = true;
-  document.querySelectorAll('.option-btn').forEach(b => {
+function handleQuizAnswer(btn, selected, correctValue, cur) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  document.querySelectorAll('#options-container .option-btn').forEach(b => {
     b.classList.add('disabled');
     if (b.dataset.value === correctValue) b.classList.add('correct-answer');
   });
-  if (selected === correctValue) { correctCount++; btn.classList.add('correct-answer'); }
-  else { wrongCount++; btn.classList.add('wrong-answer'); wrongWords.push({word:cur.word, correctMeaning:cur.meaning}); }
-  document.getElementById('score-correct').textContent = `✓ ${correctCount}`;
-  document.getElementById('score-wrong').textContent   = `✗ ${wrongCount}`;
-  setTimeout(nextQuestion, 1000);
+  if (selected === correctValue) {
+    quizCorrect++; btn.classList.add('correct-answer');
+  } else {
+    quizWrong++; btn.classList.add('wrong-answer');
+    quizWrongList.push({ word: cur.word, correctMeaning: cur.meaning });
+    addToWrongNote(cur.word, cur.meaning);
+  }
+  document.getElementById('score-correct').textContent = `✓ ${quizCorrect}`;
+  document.getElementById('score-wrong').textContent = `✗ ${quizWrong}`;
+  setTimeout(nextQuizQuestion, 1000);
 }
 
-function nextQuestion() {
-  currentIndex++;
-  if (currentIndex < quizWords.length) showQuestion();
-  else showResult(correctCount, wrongCount, wrongWords, quizWords.length, () => startQuiz(null, quizMode), retryWrong);
+function nextQuizQuestion() {
+  quizIndex++;
+  if (quizIndex < quizQuestions.length) showQuizQuestion();
+  else showResult(quizCorrect, quizWrong, quizWrongList, quizQuestions.length, quizRetryFn, retryWrong);
 }
 
-// Typing
-function normalizeKo(s) { return s.replace(/[~（）()【】\[\]\s]/g,'').toLowerCase(); }
+// Typing check (shared by write-meaning + bulk mode)
+function normalizeKo(s) { return s.replace(/[~（）()【】\[\]\s]/g, '').toLowerCase(); }
 
 function checkTypingAnswer(input, meaning) {
   const u = normalizeKo(input);
   if (!u) return false;
-  return meaning.split(/[,\/]/).map(p => normalizeKo(p)).filter(p => p.length >= 2)
+  return meaning.split(/[,\/]/).map(p => normalizeKo(p)).filter(p => p.length >= 1)
     .some(part => u === part || u.includes(part) || part.includes(u));
 }
 
 function submitTyping() {
-  if (answered) return;
-  answered = true;
-  const cur       = quizWords[currentIndex];
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const cur = quizQuestions[quizIndex];
   const typeInput = document.getElementById('type-input');
   const userInput = typeInput.value.trim();
   typeInput.disabled = true;
@@ -939,118 +669,45 @@ function submitTyping() {
   revealEl.style.display = 'block';
   document.getElementById('verdict-text').textContent = ok ? '✓ 정답!' : '✗ 오답';
   document.getElementById('correct-text').textContent = cur.meaning;
-  if (ok) correctCount++;
-  else { wrongCount++; wrongWords.push({word:cur.word, correctMeaning:cur.meaning}); }
-  document.getElementById('score-correct').textContent = `✓ ${correctCount}`;
-  document.getElementById('score-wrong').textContent   = `✗ ${wrongCount}`;
-  setTimeout(nextQuestion, 1500);
+  if (ok) { quizCorrect++; }
+  else {
+    quizWrong++;
+    quizWrongList.push({ word: cur.word, correctMeaning: cur.meaning });
+    addToWrongNote(cur.word, cur.meaning);
+  }
+  document.getElementById('score-correct').textContent = `✓ ${quizCorrect}`;
+  document.getElementById('score-wrong').textContent = `✗ ${quizWrong}`;
+  setTimeout(nextQuizQuestion, 1500);
+}
+
+function retryWrong() {
+  if (quizWrongList.length === 0) return;
+  const pool = quizWrongList.map(w => WORDS.find(x => x.word === w.word) || { word: w.word, meaning: w.correctMeaning, day: 0 });
+  const questions = buildQuestions(pool, 'mixed');
+  runQuiz(questions, `오답 다시 풀기 (${questions.length}문제)`, retryWrong);
 }
 
 document.addEventListener('keydown', e => {
   if (document.getElementById('quiz-screen').style.display === 'none') return;
-  if (quizMode === 'typing') { if (e.key === 'Enter' && !answered) submitTyping(); return; }
-  if (answered) return;
+  const cur = quizQuestions[quizIndex];
+  if (!cur) return;
+  if (cur.type === 'write-meaning') { if (e.key === 'Enter' && !quizAnswered) submitTyping(); return; }
+  if (quizAnswered) return;
   const n = parseInt(e.key);
-  if (n >= 1 && n <= 4) { const btns = document.querySelectorAll('#options-container .option-btn'); if (btns[n-1]) btns[n-1].click(); }
+  if (n >= 1 && n <= 5) { const btns = document.querySelectorAll('#options-container .option-btn'); if (btns[n - 1]) btns[n - 1].click(); }
 });
 
 // ─────────────────────────────────────────────
-//  SENTENCE MODE
-// ─────────────────────────────────────────────
-let sentWords = [], sentIndex = 0, sentCorrect = 0, sentWrong = 0;
-let sentWrongWords = [], sentAnswered = false;
-
-function startSentence(wordPool) {
-  const pool = (wordPool || WORDS).filter(w => w.sentence);
-  sentWords = shuffle(pool).slice(0, Math.min(30, pool.length));
-  sentIndex = 0; sentCorrect = 0; sentWrong = 0; sentWrongWords = []; sentAnswered = false;
-  hideAll();
-  document.getElementById('sentence-screen').style.display = 'block';
-  showSentenceQ();
-}
-
-function showSentenceQ() {
-  sentAnswered = false;
-  const cur   = sentWords[sentIndex];
-  const total = sentWords.length;
-  const displayed = cur.sentence.replace('___', '<span class="sent-blank">___</span>');
-  document.getElementById('sent-text').innerHTML = displayed;
-  document.getElementById('sent-counter').textContent  = `${sentIndex + 1} / ${total}`;
-  document.getElementById('sent-correct').textContent  = `✓ ${sentCorrect}`;
-  document.getElementById('sent-wrong').textContent    = `✗ ${sentWrong}`;
-  document.getElementById('sent-progress').style.width = `${(sentIndex / total) * 100}%`;
-  document.getElementById('sent-feedback').style.display = 'none';
-
-  const wrongs  = shuffle(WORDS.filter(w => w.word !== cur.word)).slice(0, 3).map(w => w.word);
-  const options = shuffle([cur.word, ...wrongs]);
-  const container = document.getElementById('sent-options');
-  container.innerHTML = '';
-  options.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.innerHTML = `<span class="option-number">${i + 1}</span>${opt}`;
-    btn.dataset.value = opt;
-    btn.addEventListener('click', () => handleSentAnswer(btn, opt, cur));
-    container.appendChild(btn);
-  });
-}
-
-function handleSentAnswer(btn, selected, cur) {
-  if (sentAnswered) return;
-  sentAnswered = true;
-  const ok = selected === cur.word;
-  document.querySelectorAll('#sent-options .option-btn').forEach(b => {
-    b.classList.add('disabled');
-    if (b.dataset.value === cur.word) b.classList.add('correct-answer');
-  });
-  if (ok) { sentCorrect++; btn.classList.add('correct-answer'); }
-  else    { sentWrong++;   btn.classList.add('wrong-answer'); sentWrongWords.push({word:cur.word, correctMeaning:cur.meaning}); }
-
-  const fb = document.getElementById('sent-feedback');
-  fb.textContent  = `${cur.word}  :  ${cur.meaning}`;
-  fb.className    = 'sent-feedback ' + (ok ? 'fb-correct' : 'fb-wrong');
-  fb.style.display = 'block';
-
-  document.getElementById('sent-correct').textContent = `✓ ${sentCorrect}`;
-  document.getElementById('sent-wrong').textContent   = `✗ ${sentWrong}`;
-
-  setTimeout(() => {
-    sentIndex++;
-    if (sentIndex < sentWords.length) showSentenceQ();
-    else showResult(sentCorrect, sentWrong, sentWrongWords, sentWords.length,
-      () => startSentence(),
-      () => { const pool = sentWrongWords.map(w => WORDS.find(x => x.word === w.word)).filter(Boolean); startSentence(pool); }
-    );
-  }, 1500);
-}
-
-document.addEventListener('keydown', e => {
-  if (document.getElementById('sentence-screen').style.display === 'none') return;
-  if (sentAnswered) return;
-  const n = parseInt(e.key);
-  if (n >= 1 && n <= 4) { const btns = document.querySelectorAll('#sent-options .option-btn'); if (btns[n-1]) btns[n-1].click(); }
-});
-
-document.addEventListener('keydown', e => {
-  if (document.getElementById('bulk-screen').style.display === 'none') return;
-  if (e.key !== 'Enter') return;
-  const focused = document.activeElement;
-  if (!focused || !focused.classList.contains('bulk-input')) return;
-  const idx = parseInt(focused.dataset.idx);
-  const next = document.getElementById(`bulk-inp-${idx + 1}`);
-  if (next) { e.preventDefault(); next.focus(); }
-  else { e.preventDefault(); gradeBulk(); }
-});
-
-// ─────────────────────────────────────────────
-//  BULK TYPING MODE
+//  BULK TYPING MODE (mode 3: whole day, in order)
 // ─────────────────────────────────────────────
 let bulkWords = [];
 
-function startBulk(wordPool) {
-  bulkWords = shuffle(wordPool || WORDS).slice(0, Math.min(30, (wordPool || WORDS).length));
+function startBulk(day) {
+  currentDay = day;
+  bulkWords = wordsForDay(day); // in original order, not shuffled
   hideAll();
   document.getElementById('bulk-screen').style.display = 'block';
+  document.getElementById('bulk-mode-label').textContent = `Day ${day} · 한번에 쓰기 (${bulkWords.length}개)`;
   document.getElementById('bulk-summary').style.display = 'none';
   document.getElementById('btn-grade').style.display = 'block';
   document.getElementById('btn-grade').disabled = false;
@@ -1076,13 +733,25 @@ function startBulk(wordPool) {
   document.getElementById('bulk-inp-0')?.focus();
 }
 
+document.addEventListener('keydown', e => {
+  if (document.getElementById('bulk-screen').style.display === 'none') return;
+  if (e.key !== 'Enter') return;
+  const focused = document.activeElement;
+  if (!focused || !focused.classList.contains('bulk-input')) return;
+  const idx = parseInt(focused.dataset.idx);
+  const next = document.getElementById(`bulk-inp-${idx + 1}`);
+  if (next) { e.preventDefault(); next.focus(); }
+  else { e.preventDefault(); gradeBulk(); }
+});
+
 function gradeBulk() {
   let correct = 0;
+  const wrongs = [];
   bulkWords.forEach((w, i) => {
     const inp = document.getElementById(`bulk-inp-${i}`);
     const row = document.getElementById(`bulk-row-${i}`);
     const val = inp.value.trim();
-    const ok  = checkTypingAnswer(val, w.meaning);
+    const ok = checkTypingAnswer(val, w.meaning);
     inp.disabled = true;
     if (ok) {
       correct++;
@@ -1091,17 +760,20 @@ function gradeBulk() {
     } else {
       inp.classList.add('inp-wrong');
       row.classList.add('row-wrong');
+      wrongs.push({ word: w.word, meaning: w.meaning });
     }
   });
 
+  wrongs.forEach(w => addToWrongNote(w.word, w.meaning));
+
   const total = bulkWords.length;
   const wrong = total - correct;
-  const pct   = Math.round((correct / total) * 100);
+  const pct = Math.round((correct / total) * 100);
 
   const summary = document.getElementById('bulk-summary');
   document.getElementById('bulk-correct-count').textContent = `정답 ${correct}개 (${pct}%)`;
-  document.getElementById('bulk-total-count').textContent   = `전체 ${total}개`;
-  document.getElementById('bulk-summary-msg').textContent   =
+  document.getElementById('bulk-total-count').textContent = `전체 ${total}개`;
+  document.getElementById('bulk-summary-msg').textContent =
     wrong === 0 ? '완벽합니다!' : `빨간색 단어를 다시 확인하세요 (오답 ${wrong}개)`;
   summary.style.display = 'block';
 
@@ -1112,88 +784,34 @@ function gradeBulk() {
 }
 
 // ─────────────────────────────────────────────
-//  HAMA MODE
-// ─────────────────────────────────────────────
-let hamaPool=[], hamaQueue=[], hamaIndex=0, hamaKnown=0, hamaUnknown=0, hamaRound=1, hamaTotal=0, hamaFlipped=false;
-
-function startHama() {
-  hamaPool  = shuffle(WORDS).slice(0, 30);
-  hamaTotal = hamaPool.length;
-  hamaKnown = 0; hamaUnknown = 0; hamaRound = 1; hamaFlipped = false;
-  hamaQueue = shuffle([...hamaPool]); hamaIndex = 0;
-  hideAll();
-  document.getElementById('hama-screen').style.display = 'block';
-  showHamaCard();
-}
-
-function showHamaCard() {
-  hamaFlipped = false;
-  document.getElementById('flip-card-inner').classList.remove('flipped');
-  document.getElementById('hama-eval').style.display = 'none';
-  const cur = hamaQueue[hamaIndex];
-  document.getElementById('hama-word').textContent      = cur.word;
-  document.getElementById('hama-word-back').textContent = cur.word;
-  document.getElementById('hama-meaning').textContent   = cur.meaning;
-  document.getElementById('hama-counter').textContent      = `${hamaIndex + 1} / ${hamaQueue.length}`;
-  document.getElementById('hama-known-count').textContent  = `✓ ${hamaKnown}`;
-  document.getElementById('hama-unknown-count').textContent= `✗ ${hamaUnknown}`;
-  document.getElementById('hama-progress-fill').style.width= `${(hamaKnown / hamaTotal) * 100}%`;
-  document.getElementById('hama-round-badge').textContent  = `${hamaRound}라운드`;
-  document.getElementById('hama-remaining').textContent    = hamaPool.length < hamaTotal
-    ? `남은 암기 단어: ${hamaPool.length}개` : `전체 ${hamaTotal}개 학습 중`;
-}
-
-function flipCard() {
-  if (hamaFlipped) return;
-  hamaFlipped = true;
-  document.getElementById('flip-card-inner').classList.add('flipped');
-  setTimeout(() => document.getElementById('hama-eval').style.display = 'flex', 300);
-}
-
-function hamaEval(known) {
-  const cur = hamaQueue[hamaIndex];
-  if (known) { hamaKnown++;   hamaPool = hamaPool.filter(w => w.word !== cur.word); }
-  else       { hamaUnknown++; }
-  hamaIndex++;
-  if (hamaIndex < hamaQueue.length) { showHamaCard(); return; }
-  if (hamaPool.length === 0) {
-    showResult(hamaTotal, 0, [], hamaTotal, startHama, null, `${hamaRound}라운드 만에 완료!`);
-  } else {
-    hamaRound++; hamaUnknown = 0;
-    hamaQueue = shuffle([...hamaPool]); hamaIndex = 0;
-    showHamaCard();
-  }
-}
-
-// ─────────────────────────────────────────────
 //  RESULT
 // ─────────────────────────────────────────────
-function showResult(correct, wrong, wrongs, total, retryFn, retryWrongFn, customMsg) {
+function showResult(correct, wrong, wrongs, total, retryFn, retryWrongFn) {
   hideAll();
   document.getElementById('result-screen').style.display = 'block';
 
   const circle = document.getElementById('score-circle');
-  document.getElementById('score-text').textContent  = correct;
+  document.getElementById('score-text').textContent = correct;
   document.getElementById('score-denom').textContent = `/ ${total}`;
   circle.className = 'score-circle';
-  if (correct === total)           circle.classList.add('perfect');
+  if (correct === total) circle.classList.add('perfect');
   else if (correct >= total * 0.8) circle.classList.add('great');
   else if (correct >= total * 0.5) circle.classList.add('good');
-  else                             circle.classList.add('low');
+  else circle.classList.add('low');
 
-  document.getElementById('final-correct').textContent = customMsg || `정답 ${correct}개`;
-  document.getElementById('final-wrong').textContent   = customMsg ? `전체 ${total}개 완료` : `오답 ${wrong}개`;
+  document.getElementById('final-correct').textContent = `정답 ${correct}개`;
+  document.getElementById('final-wrong').textContent = `오답 ${wrong}개`;
 
   const wrongSection = document.getElementById('wrong-section');
-  const wrongList    = document.getElementById('wrong-list');
-  const retryWrongBtn= document.getElementById('btn-retry-wrong');
-  const retryBtn     = document.getElementById('btn-retry');
+  const wrongList = document.getElementById('wrong-list');
+  const retryWrongBtn = document.getElementById('btn-retry-wrong');
+  const retryBtn = document.getElementById('btn-retry');
 
   retryBtn.onclick = retryFn;
   retryBtn.textContent = '다시 하기';
 
   if (wrongs.length > 0 && retryWrongFn) {
-    wrongSection.style.display  = 'block';
+    wrongSection.style.display = 'block';
     retryWrongBtn.style.display = 'inline-block';
     retryWrongBtn.onclick = retryWrongFn;
     wrongList.innerHTML = '';
@@ -1204,10 +822,15 @@ function showResult(correct, wrong, wrongs, total, retryFn, retryWrongFn, custom
       wrongList.appendChild(item);
     });
   } else {
-    wrongSection.style.display  = 'none';
+    wrongSection.style.display = 'none';
     retryWrongBtn.style.display = 'none';
   }
 }
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+renderHome();
 </script>
 </body>
 </html>
